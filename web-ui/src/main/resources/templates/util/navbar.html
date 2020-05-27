@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg navbar-light shadow-sm navbar-bg-color fixed-top">
+        <h2 class="font-roboto">Agile Assessment</h2>
+
+        <button th:if="${showLogout}" class="btn navbar-toggler border-0" type="button" data-toggle="collapse"
+                data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fa fa-bars"></i>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <form th:if="${showLogout}" th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0">
+                <button class="btn btn-danger rounded-pill btn-logout" type="submit" tooltip="Logout">
+                    <i class="fa fa-power-off icon-md">&nbsp;&nbsp;</i>
+                </button>
+            </form>
+        </div>
+    </nav>
+    <div class="navbar-m-top"></div>
+</th:block>
+</html>

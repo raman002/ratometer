@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="util/imports :: import"></th:block>
+    <script th:src="@{/js/dashboard.js}"></script>
+</head>
+<body>
+<th:block th:replace="util/navbar :: navbar"></th:block>
+
+<nav>
+    <div class="nav nav-tabs m-3" id="nav-tab" role="tablist">
+        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${teamsTabClass}" id="teamsTab"
+           th:href="@{?teams}" role="tab" aria-controls="nav-home">Teams</a>
+
+        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${membersTabClass}"  id="nav-profile-tab"
+           th:href="@{?members}" role="tab" aria-controls="nav-profile">Members</a>
+
+        <!--Rating tab for admins-->
+        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${adminRatingClass}"  id="nav-profile-tab"
+           th:href="@{?admin-rating}" role="tab" aria-controls="nav-profile">Ratings</a>
+
+        <!--Rating tab for users-->
+          <a th:if="${isUser}" class="nav-item nav-link" th:classappend="${userRatingClass}"  id="nav-profile-tab" data-toggle="tab"
+             th:href="@{?user-rating}" role="tab" aria-controls="nav-profile">Introduction</a>
+
+        <a th:if="${isUser}" class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab"
+             th:href="@{?user-rating}" role="tab" aria-controls="nav-profile">Rating</a>
+
+    </div>
+</nav>
+
+<div class="tab-content col-12" id="nav-tabContent-team" th:if="${teamsTabActive}">
+    <table class="table table-striped table-bordered full-width" id="teams">
+        <thead class="bg-info text-light">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Size</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="team, iter : ${teams}">
+            <td th:text="${iter.index + 1}"></td>
+            <td th:text="${team.teamName}"></td>
+            <td>1</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="tab-content col-12" id="nav-tabContent-members" th:if="${membersTabActive}">
+    <table class="table table-striped table-bordered full-width" id="members">
+        <thead class="bg-info text-light">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="member, iter : ${members}">
+            <td th:text="${iter.index + 1}"></td>
+            <td th:text="${member.fullName}"></td>
+            <td th:text="${member.email}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="tab-content col-12" id="nav-tabContent-members" th:if="${adminRatingTabActive}">
+    <table class="table table-striped table-bordered full-width" id="admin-ratings">
+        <thead class="bg-info text-light">
+        <tr>
+            <th>#</th>
+            <th>Team Name</th>
+            <th>Rating</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="rating, iter : ${adminRatings}">
+            <td th:text="${iter.index + 1}"></td>
+            <td th:text="${rating.teamName}"></td>
+            <td th:text="${rating.rating}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="tab-content col-12" id="nav-tabContent-members" th:if="${userRatingTabActive}">
+    <div id="accordion">
+        <div class="card" th:each="category : ${categories}">
+            <div class="card-header" th:attr="id='_' + ${category.pk}">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse"
+                             aria-expanded="false" aria-controls="collapseThree" th:text="${category.name}">
+                    </button>
+                </h5>
+            </div>
+            <div th:id="${dataId}" class="collapse" th:attr="area-labelledby='_' + ${category.pk}, data-parent='_' + ${category.pk}">
+                <div class="card-body">
+                    <div class="card">
+                        <div class="card-header" id="headingTwo">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                   Category 2 - Sub-Category 1
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                            <div class="card-body">
+
+                                <input type="radio" th:name="${options}"> c2- sc1 - Option 1 <br/>
+                                <input type="radio" th:name="${options}"> c2- sc2 - Option 2 <br/>
+                                <input type="radio" th:name="${options}"> c2- sc3 - Option 3 <br/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

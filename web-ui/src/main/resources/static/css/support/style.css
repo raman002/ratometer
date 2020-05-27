@@ -1,0 +1,33 @@
+
+.icon-md {
+	font-size: larger;
+}
+
+.icon-lg {
+	font-size: x-large;
+}
+
+.font-roboto {
+	font-family: 'Roboto', sans-serif;
+}
+
+.logo {
+	width: 191px;
+	height: 50px;
+}
+
+.full-width {
+	width: 100%;
+}
+
+.navbar-bg-color {
+	background-color: #f9f9f9
+}
+
+.btn-logout {
+	width: 41px;
+}
+
+.navbar-m-top {
+	margin-top: 87px !important;
+}

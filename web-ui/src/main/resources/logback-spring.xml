@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property scope="context" name="file" value="application" />
+    <property scope="context" name="file-name-pattern" value="app-logs/%d{yyyy-MM-dd}/${file}-%i.log" />
+    <property scope="context" name="pattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5level %logger : %msg%n" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>${pattern}</Pattern>
+        </layout>
+    </appender>
+
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${file-name-pattern}</fileNamePattern>
+            <!--7 days-->
+            <maxHistory>7</maxHistory>
+            <!--Threshold for a log file after which a new file will be created-->
+            <maxFileSize>8MB</maxFileSize>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+
+
+    <springProfile name="core | dev">
+        <root level="info">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="ROLLING_FILE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="info">
+            <appender-ref ref="ROLLING_FILE"/>
+        </root>
+    </springProfile>
+
+</configuration>
