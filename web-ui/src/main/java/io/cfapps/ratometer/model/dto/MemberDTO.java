@@ -1,6 +1,7 @@
 package io.cfapps.ratometer.model.dto;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 public class MemberDTO implements Serializable {
@@ -9,6 +10,7 @@ public class MemberDTO implements Serializable {
     private String fullName;
     private String email;
     private UUID uuid;
+    private List<String> teams;
 
     public String getUsername() {
         return username;
@@ -40,5 +42,13 @@ public class MemberDTO implements Serializable {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public List<String> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(List<String> teams) {
+        this.teams = teams;
     }
 }

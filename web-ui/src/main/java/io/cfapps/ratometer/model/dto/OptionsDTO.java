@@ -1,9 +1,10 @@
 package io.cfapps.ratometer.model.dto;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class OptionsDTO implements Serializable {
-    private Long value;
+    private UUID uuid;
     private String name;
 
     public String getName() {
@@ -14,11 +15,11 @@ public class OptionsDTO implements Serializable {
         this.name = name;
     }
 
-    public Long getValue() {
-        return value;
+    public UUID getUuid() {
+        return uuid;
     }
 
-    public void setValue(Long value) {
-        this.value = value;
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 }

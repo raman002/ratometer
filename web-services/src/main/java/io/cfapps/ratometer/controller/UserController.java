@@ -5,19 +5,24 @@ import io.cfapps.ratometer.annotations.web.Update;
 import io.cfapps.ratometer.controller.support.ValidationErrorProcessor;
 import io.cfapps.ratometer.entity.User;
 import io.cfapps.ratometer.model.dto.UserDTO;
+import io.cfapps.ratometer.service.RoleService;
+import io.cfapps.ratometer.service.TeamService;
 import io.cfapps.ratometer.service.UserService;
 import io.cfapps.ratometer.util.web.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.cfapps.ratometer.config.MessageSourceConfig.getMessage;
 
@@ -27,10 +32,12 @@ public class UserController implements ValidationErrorProcessor {
 
     private Logger log = LoggerFactory.getLogger(UserController.class);
 
-    private UserService userService;
+    private final UserService userService;
+    private final TeamService teamService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, TeamService teamService) {
         this.userService = userService;
+        this.teamService = teamService;
     }
 
     @PostMapping("/create-user")
@@ -80,7 +87,28 @@ public class UserController implements ValidationErrorProcessor {
 
             UserDTO userDTO = new UserDTO();
             userService.copyProperties(user, userDTO);
+
+            // Add roles for a particular user.
+            userDTO.setTeams(teamService.fetchTeamsByUsername(user.getUsername()).stream().collect(Collectors.toSet()));
             userDTOList.add(userDTO);
+        }
+
+        return ResponseEntity.ok(Response.ok(userDTOList));
+    }
+
+    @GetMapping("/get-unassigned-members")
+    public ResponseEntity<Response<List<UserDTO>>> getUnassignedTeamMembers(@RequestHeader("username") String username) {
+        List<User> userList = userService.findAllByIsDeleted();
+        List<UserDTO> userDTOList = new ArrayList<>();
+
+        for (User user : userList) {
+            if (user.getUsername().equals(username)) continue;
+
+            if (CollectionUtils.isEmpty(teamService.fetchTeamsByUsername(user.getUsername()))) {
+                UserDTO userDTO = new UserDTO();
+                userService.copyProperties(user, userDTO);
+                userDTOList.add(userDTO);
+            }
         }
 
         return ResponseEntity.ok(Response.ok(userDTOList));

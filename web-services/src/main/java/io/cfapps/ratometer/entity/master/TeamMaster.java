@@ -17,7 +17,7 @@ public class TeamMaster extends AbstractBaseEntity {
     @Id
     @JsonIgnore
     @Column(name = "teams_master_id")
-    @SequenceGenerator(name = "teams_master_seq", sequenceName = "teams_master_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "teams_master_seq", sequenceName = "teams_master_teams_master_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "teams_master_seq")
     private Long pk;
 

@@ -16,7 +16,7 @@ public class Role extends BaseEntity {
     @Id
     @JsonIgnore
     @Column(name = "roles_id")
-    @SequenceGenerator(name = "roles_seq", sequenceName = "roles_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "roles_seq", sequenceName = "roles_roles_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "roles_seq")
     private Long pk;
 

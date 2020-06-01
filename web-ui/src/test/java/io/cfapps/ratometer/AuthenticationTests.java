@@ -10,6 +10,8 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.stream.Stream;
+
 @SpringBootTest(classes = Application.class)
 class AuthenticationTests {
 
@@ -23,7 +25,8 @@ class AuthenticationTests {
 			LoginDTO loginDTO = new LoginDTO();
 			loginDTO.setUsername("admin");
 			loginDTO.setPassword("admin");
-			String token = loginService.authenticate(loginDTO).headers().firstValue("Authorization").orElse("");
+			String token = Stream.of(loginService.authenticate(loginDTO).getResult()).filter(e -> e.getName().equals("Authorization"))
+					.findFirst().get().getValue();
 			Assertions.assertTrue(StringUtils.isNotBlank(token), "Could not get the authorization token!");
 		};
 

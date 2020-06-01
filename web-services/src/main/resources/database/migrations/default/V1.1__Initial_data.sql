@@ -3,6 +3,7 @@ values (1, 'USER'),
        (2, 'ADMIN'),
        (3, 'SUPER_ADMIN');
 
+select setval('role_master_role_master_id_seq', max(role_master_id)) from role_master;
 
 insert into users (users_id, username, email, full_name, password)
 values
@@ -19,6 +20,7 @@ values
 (4, 'rohit.thakur', 'rohit.thakur@ratometer.com', 'Rohit Thakur',
  '$2y$10$TcZ352MixlHlLxklQSC.QeHNmHYaFGAGrNxwljz9v3DTsE1iptE/C');
 
+select setval('users_users_id_seq', max(users_id)) from users;
 
 -- Assigning Roles to the users
 insert into roles(users_id, role_master_id)
@@ -28,6 +30,7 @@ values (1, 3), -- Assigning SUPER ADMIN role to Steve Adams.
        (4, 1);
 -- Assigning USER role to Rohit Thakur.
 
+select setval('roles_roles_id_seq', max(roles_id)) from roles;
 
 -- Creating teams
 insert into teams_master(teams_master_id, name)
@@ -35,13 +38,16 @@ values (1, 'TEAM A'),
        (2, 'TEAM B'),
        (3, 'TEAM C');
 
+select setval('teams_master_teams_master_id_seq', max(teams_master_id)) from teams_master;
+
 
 -- Assigning Teams to the users
-insert into teams(teams_id, users_id)
-values (1, 2), -- Assigning mark to TEAM A
-       (2, 3), -- Assigning vikas to TEAM B
-       (3, 4);
+insert into teams(teams_id, users_id, teams_master_id)
+values (1, 2, 1), -- Assigning mark to TEAM A
+       (2, 3, 2), -- Assigning vikas to TEAM B
+       (3, 4, 3);
 -- Assigning rohit to TEAM C
+select setval('teams_teams_id_seq', max(teams_id)) from teams;
 
 -- Categories
 insert into categories_master(categories_master_id, name, type)
@@ -183,3 +189,5 @@ values (29, 13, 'Limited Understanding of Business Goal and Technicl Strategy', 
        (105, 28, 'Continuous Integration occurs daily to an early test environment', 'OPTION'),
        (106, 28, 'Continuous Integration occurs daily to a system test environment', 'OPTION'),
        (107, 28, 'Build breaks/bugs are fixed immedialy', 'OPTION');
+
+select setval('categories_master_categories_master_id_seq', max(categories_master_id)) from categories_master;

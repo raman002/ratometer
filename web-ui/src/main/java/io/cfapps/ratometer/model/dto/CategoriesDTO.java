@@ -1,9 +1,7 @@
 package io.cfapps.ratometer.model.dto;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CategoriesDTO implements Serializable {
 
@@ -11,8 +9,9 @@ public class CategoriesDTO implements Serializable {
     private  String name;
     private Long parentCategoryId;
     private String categoriesType;
+    private UUID uuid;
 
-    private Map<String, List<SubCategoriesDTO>> categoriesMap = new HashMap<>();
+    private List<SubCategoriesDTO> subCategories = new ArrayList<>();
 
     public Long getPk() {
         return pk;
@@ -46,11 +45,19 @@ public class CategoriesDTO implements Serializable {
         this.categoriesType = categoriesType;
     }
 
-    public Map<String, List<SubCategoriesDTO>> getCategoriesMap() {
-        return categoriesMap;
+    public List<SubCategoriesDTO> getSubCategories() {
+        return subCategories;
     }
 
-    public void setCategoriesMap(Map<String, List<SubCategoriesDTO>> categoriesMap) {
-        this.categoriesMap = categoriesMap;
+    public void setSubCategories(List<SubCategoriesDTO> subCategories) {
+        this.subCategories = subCategories;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 }

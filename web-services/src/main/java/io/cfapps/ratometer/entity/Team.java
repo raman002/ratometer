@@ -16,7 +16,7 @@ public class Team extends BaseEntity {
     @Id
     @JsonIgnore
     @Column(name = "teams_id")
-    @SequenceGenerator(name = "teams_seq", sequenceName = "teams_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "teams_seq", sequenceName = "teams_teams_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "teams_seq")
     private Long pk;
 

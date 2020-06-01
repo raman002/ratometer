@@ -1,19 +1,46 @@
 package io.cfapps.ratometer.model.dto;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SubCategoriesDTO implements Serializable {
 
-    private Map<String, List<OptionsDTO>> subCategoriesMap = new HashMap<>();
+    private Long pk;
+    private UUID uuid;
+    private String name;
 
-    public Map<String, List<OptionsDTO>> getSubCategoriesMap() {
-        return subCategoriesMap;
+    private List<OptionsDTO> options = new ArrayList<>();
+
+
+    public UUID getUuid() {
+        return uuid;
     }
 
-    public void setSubCategoriesMap(Map<String, List<OptionsDTO>> subCategoriesMap) {
-        this.subCategoriesMap = subCategoriesMap;
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<OptionsDTO> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<OptionsDTO> options) {
+        this.options = options;
+    }
+
+    public Long getPk() {
+        return pk;
+    }
+
+    public void setPk(Long pk) {
+        this.pk = pk;
     }
 }

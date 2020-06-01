@@ -31,3 +31,49 @@
 .navbar-m-top {
 	margin-top: 87px !important;
 }
+
+.login-panel-width {
+	width: 21rem;
+}
+
+/*
+.custom-text-field {
+	border-top: none;
+	border-left: none;
+	border-bottom-width: 1px;
+	border-right: none;
+	border-radius: unset;
+}
+
+.border-sharp {
+	border-radius: unset;
+}
+*/
+
+.font-quicksand {
+	font-family: Quicksand;
+}
+
+.font-rajdhani {
+	font-family: Rajdhani;
+}
+
+.font-tajawal {
+	font-family: Tajawal;
+}
+
+.font-varella-round {
+	font-family: Varela Round;
+}
+
+.width-60 {
+	width: 60rem;
+}
+
+.width-80 {
+	width: 80rem;
+}
+
+.font-x-large {
+	font-size: x-large;
+}

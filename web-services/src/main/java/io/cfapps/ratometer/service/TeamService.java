@@ -1,7 +1,7 @@
 package io.cfapps.ratometer.service;
 
-import io.cfapps.ratometer.entity.Role;
-import io.cfapps.ratometer.repository.RoleRepository;
+import io.cfapps.ratometer.entity.Team;
+import io.cfapps.ratometer.repository.TeamRepository;
 import io.cfapps.ratometer.service.support.BaseService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,16 +10,20 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
-public class TeamService extends BaseService<RoleRepository, Role, Long> {
+public class TeamService extends BaseService<TeamRepository, Team, Long> {
 
-    private final RoleRepository repository;
+    private final TeamRepository repository;
 
-    public TeamService(RoleRepository repository) {
+    public TeamService(TeamRepository repository, TeamRepository repository1) {
         super(repository);
-        this.repository = repository;
+        this.repository = repository1;
     }
 
-    public List<String> getRoleNamesByUserId(Long userId) {
-        return repository.findRoleNamesByUserId(userId);
+    public List<String> fetchTeamsByUsername(String username) {
+        return repository.fetchTeamsByUsername(username);
+    }
+
+    public Long getTeamSize(Long teamsMasterId) {
+        return repository.getTeamSize(teamsMasterId);
     }
 }

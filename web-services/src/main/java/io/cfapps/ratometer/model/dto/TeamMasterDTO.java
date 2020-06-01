@@ -3,11 +3,19 @@ package io.cfapps.ratometer.model.dto;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class TeamDTO implements Serializable {
+public class TeamMasterDTO implements Serializable {
 
-    private String teamName;
-    private Integer size;
     private UUID uuid;
+    private String teamName;
+    private Long size;
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
 
     public String getTeamName() {
         return teamName;
@@ -17,19 +25,11 @@ public class TeamDTO implements Serializable {
         this.teamName = teamName;
     }
 
-    public Integer getSize() {
+    public Long getSize() {
         return size;
     }
 
-    public void setSize(Integer size) {
+    public void setSize(Long size) {
         this.size = size;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 }

@@ -2,7 +2,10 @@ package io.cfapps.ratometer.controller;
 
 import io.cfapps.ratometer.model.dto.LoginDTO;
 import io.cfapps.ratometer.model.dto.UserDetailsDTO;
+import io.cfapps.ratometer.service.DashboardService;
 import io.cfapps.ratometer.service.LoginService;
+import io.cfapps.ratometer.util.web.Response;
+import org.apache.http.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,23 +17,26 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static io.cfapps.ratometer.config.MessageSourceConfig.getMessage;
 
 @Controller
+@RequestMapping("/login")
 public class LoginController {
 
     private final Logger log = LoggerFactory.getLogger(LoginController.class);
 
     private final LoginService loginService;
+    private final DashboardService dashboardService;
 
-    public LoginController(LoginService loginService) {
+    public LoginController(LoginService loginService, DashboardService dashboardService) {
         this.loginService = loginService;
+        this.dashboardService = dashboardService;
     }
 
-    @GetMapping("/login")
+    @GetMapping
     public ModelAndView login(RedirectView redirectView, @RequestParam Map<String, Object> requestParams) {
         ModelAndView modelAndView = new ModelAndView("login");
 
@@ -46,10 +52,10 @@ public class LoginController {
         modelAndView.addAllObjects(requestParams);
     }
 
-    @PostMapping("/login/submit")
+    @PostMapping("/submit")
     public RedirectView loginSubmit(@ModelAttribute("loginDTO") LoginDTO loginDTO, RedirectView redirectView,
                                     RedirectAttributes attributes, HttpSession session) {
-        HttpResponse<String> response = null;
+        Response<Header[]> response = null;
 
         try {
             response = loginService.authenticate(loginDTO);
@@ -62,13 +68,19 @@ public class LoginController {
             return new RedirectView("/login");
         }
 
-        String authorization = response.headers().firstValue("Authorization").orElse("");
-        int statusCode = response.statusCode();
+        String token = Stream.of(response.getResult()).filter(e -> e.getName().equals("Authorization"))
+                .findFirst().get().getValue();
+        int statusCode = response.getCode();
 
         // If status code is 400 then it means the credentials are rejected.
         if (statusCode == HttpStatus.OK.value()) {
-           prepareUserDetails(session, loginDTO, authorization);
-           return new RedirectView("/dashboard?teams");
+            prepareUserDetails(session, loginDTO, token);
+            UserDetailsDTO userDetails = (UserDetailsDTO) session.getAttribute("userDetails");
+
+            if (userDetails.getRoles().contains("SUPER_ADMIN"))
+                return new RedirectView("/dashboard?teams");
+            else
+                return new RedirectView("/dashboard?intro");
         } else if (statusCode == HttpStatus.BAD_REQUEST.value()) {
             prepareErrorMessage(attributes, getMessage("usr.err.invalid-credentials"));
         } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
@@ -84,6 +96,11 @@ public class LoginController {
 
         userDetailsDTO.setAuthToken(authorization);
         userDetailsDTO.setUsername(loginDTO.getUsername());
+        try {
+            userDetailsDTO.setRoles(dashboardService.loadUserRoles(userDetailsDTO).getResult());
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
 
         session.setAttribute("userDetails", userDetailsDTO);
     }
@@ -92,11 +109,5 @@ public class LoginController {
         attributes.addAttribute("showAlert", true);
         attributes.addAttribute("alertClass", "alert-danger show");
         attributes.addAttribute("message", message);
-    }
-
-    @PostMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/login";
     }
 }

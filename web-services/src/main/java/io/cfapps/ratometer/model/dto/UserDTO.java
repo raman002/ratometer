@@ -7,7 +7,7 @@ import io.cfapps.ratometer.annotations.web.Create;
 import io.cfapps.ratometer.annotations.web.Update;
 
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
+import java.util.*;
 
 public class UserDTO {
     @NotNull(groups = Update.class)
@@ -26,6 +26,8 @@ public class UserDTO {
     private String password;
 
     private String contactNo;
+
+    private Set<String> teams;
 
     @JsonIgnore
     public String getPassword() {
@@ -75,5 +77,13 @@ public class UserDTO {
 
     public void setContactNo(String contactNo) {
         this.contactNo = contactNo;
+    }
+
+    public Set<String> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(Set<String> teams) {
+        this.teams = teams;
     }
 }

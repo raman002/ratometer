@@ -1,24 +1,31 @@
 package io.cfapps.ratometer.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cfapps.ratometer.model.dto.*;
+import io.cfapps.ratometer.model.dto.support.CategoryNameComparator;
+import io.cfapps.ratometer.model.dto.support.OptionNameComparator;
+import io.cfapps.ratometer.model.dto.support.SubCategoryNameComparator;
 import io.cfapps.ratometer.service.DashboardService;
 import io.cfapps.ratometer.util.web.Response;
+import org.apache.catalina.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpSession;
-import java.net.http.HttpResponse;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -45,7 +52,11 @@ public class DashboardController {
         }
 
         if (redirectView.isRedirectView()) {
-            setRoles(userDetailsDTO);
+            if (CollectionUtils.isEmpty(userDetailsDTO.getRoles())) {
+                setRoles(userDetailsDTO);
+                httpSession.setAttribute("userDetails", userDetailsDTO);
+            }
+
             handleRedirect(modelAndView, requestParams, userDetailsDTO, httpSession);
         }
 
@@ -54,22 +65,27 @@ public class DashboardController {
 
     private void setRoles(UserDetailsDTO userDetailsDTO) {
         try {
-            HttpResponse<String> userRolesResponse = dashboardService.loadUserRoles(userDetailsDTO);
-            if (userRolesResponse != null) {
-                HttpStatus statusCode = HttpStatus.resolve(userRolesResponse.statusCode());
+            Response<List<String>> teamsResponse = dashboardService.loadUserRoles(userDetailsDTO);
+            HttpStatus statusCode = HttpStatus.resolve(teamsResponse.getCode());
 
-                switch (statusCode) {
-                    case OK -> {
-                        Response<List<String>> response = objectMapper.readValue(userRolesResponse.body(), new TypeReference<>() {});
-                        userDetailsDTO.setRoles(response.getResult());
-                    }
-
-                    case BAD_REQUEST ->
-                        log.warn("Roles are not found for user: {}", userDetailsDTO.getUsername());
-
-                    case INTERNAL_SERVER_ERROR ->
-                        log.warn("Something went wrong while fetching roles for user: {}", userDetailsDTO.getUsername());
+            switch (statusCode) {
+                case OK: {
+                    userDetailsDTO.setRoles(teamsResponse.getResult());
+                    break;
                 }
+
+                case BAD_REQUEST: {
+                    log.warn("Roles are not found for user: {}", userDetailsDTO.getUsername());
+                    break;
+                }
+
+                case INTERNAL_SERVER_ERROR: {
+                    log.warn("Something went wrong while fetching roles for user: {}", userDetailsDTO.getUsername());
+                    break;
+                }
+
+                default:
+                    log.error("Unknown status code: {}", statusCode);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -78,32 +94,31 @@ public class DashboardController {
 
     private List<TeamDTO> prepareTeamsTabData(UserDetailsDTO userDetailsDTO) {
         try {
-            HttpResponse<String> teamsResponse = dashboardService.fetchTeams(userDetailsDTO);
-            HttpStatus statusCode = HttpStatus.resolve(teamsResponse.statusCode());
+            Response<List<TeamDTO>> teamsResponse = dashboardService.fetchTeams(userDetailsDTO);
+            HttpStatus statusCode = HttpStatus.resolve(teamsResponse.getCode());
 
-            return switch (statusCode) {
-                case OK -> {
-                    Response<List<TeamDTO>> response = objectMapper.readValue(teamsResponse.body(), new TypeReference<>() {});
-                    yield response.getResult();
+            switch (statusCode) {
+                case OK: {
+                    return teamsResponse.getResult();
                 }
 
-                case BAD_REQUEST -> {
-                    log.warn("Roles are not found for user: {}", userDetailsDTO.getUsername());
-                    yield List.of();
+                case BAD_REQUEST: {
+                    log.warn("Teams are not found for the user: {}", userDetailsDTO.getUsername());
+                    break;
                 }
 
-                case INTERNAL_SERVER_ERROR -> {
-                    log.warn("Something went wrong while fetching roles for user: {}", userDetailsDTO.getUsername());
-                    yield List.of();
+                case INTERNAL_SERVER_ERROR: {
+                    log.warn("Something went wrong while fetching teams for user: {}", userDetailsDTO.getUsername());
+                    break;
                 }
-
-                default -> List.of();
-            };
+                default:
+                    log.error("Unknown status code: {}", statusCode);
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
 
-        return List.of();
+        return Collections.EMPTY_LIST;
     }
 
     private void handleRedirect(ModelAndView modelAndView, Map<String, Object> requestParams,
@@ -122,80 +137,161 @@ public class DashboardController {
                 setTeamsProperties(modelAndView, userDetailsDTO);
             } else if (requestParams.containsKey("admin-rating")) {
                 setAdminRatingProperties(modelAndView, userDetailsDTO);
+            } else if (requestParams.containsKey("assign-teams")) {
+                assignTeams(modelAndView, userDetailsDTO);
             }
         } else if (roles.contains("USER")) {
-            setUserCategories(modelAndView, httpSession);
+            modelAndView.addObject("isUser", true);
+            if (requestParams.containsKey("intro")) {
+                prepareIntroductionView(modelAndView);
+            } else if (requestParams.containsKey("user-rating")) {
+                setUserCategories(modelAndView, httpSession);
+            }
         }
     }
+
+    private void assignTeams(ModelAndView modelAndView, UserDetailsDTO userDetailsDTO) {
+        modelAndView.addObject("teamAssignmentTabActive", true);
+        modelAndView.addObject("teamAssignmentTabClass", "active");
+        modelAndView.addObject("unassignedMembers", loadUnassignedMembers(userDetailsDTO));
+        modelAndView.addObject("teams", prepareTeamsTabData(userDetailsDTO));
+    }
+
+    private List<MemberDTO> loadUnassignedMembers(UserDetailsDTO userDetailsDTO) {
+        try {
+            Response<List<MemberDTO>> response = dashboardService.fetchMembers(userDetailsDTO, true);
+
+            HttpStatus statusCode = HttpStatus.resolve(response.getCode());
+
+            switch (statusCode) {
+                case OK: {
+                    return response.getResult();
+                }
+
+                case BAD_REQUEST: {
+                    log.warn("Categories are not for user: {}", userDetailsDTO.getUsername());
+                    break;
+                }
+                case INTERNAL_SERVER_ERROR: {
+                    log.warn("Something went wrong while fetching categories for user: {}", userDetailsDTO
+                            .getUsername());
+                    break;
+                }
+                default: {
+                    log.error("Unknown status code: {}", statusCode);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    private void prepareIntroductionView(ModelAndView modelAndView) {
+        modelAndView.addObject("introTabActive", true);
+        modelAndView.addObject("introTabClass", "active");
+    }
+
 
     private void setUserCategories(ModelAndView modelAndView, HttpSession session) {
         modelAndView.addObject("userRatingTabActive", true);
         modelAndView.addObject("userRatingClass", "active");
-        modelAndView.addObject("isUser", true);
         modelAndView.addObject("categories", fetchCategories(session));
     }
 
+    private List<CategoriesDTO> splitCategories(List<CategoriesDTO> categoriesDTOS) {
+
+        List<CategoriesDTO> categories = categoriesDTOS.stream().filter(e -> "CATEGORY".equals(e.getCategoriesType()))
+                .collect(Collectors.toList());
+
+        // Remove the extracted categories.
+        categoriesDTOS.removeAll(categories);
+
+        for (CategoriesDTO category : categories) {
+
+            List<CategoriesDTO> subCategories = categoriesDTOS.stream()
+                    .filter(e -> "SUB_CATEGORY".equals(e.getCategoriesType()) && e.getParentCategoryId() == category.getPk())
+                    .collect(Collectors.toList());
+
+            // Map the subcategories with categories.
+            for(CategoriesDTO cat: subCategories) {
+                SubCategoriesDTO subCategoriesDTO = new SubCategoriesDTO();
+                subCategoriesDTO.setPk(cat.getPk());
+                subCategoriesDTO.setUuid(cat.getUuid());
+                subCategoriesDTO.setName(cat.getName());
+                category.getSubCategories().add(subCategoriesDTO);
+            };
+
+            // Remove the extracted sub categories.
+            categoriesDTOS.removeAll(subCategories);
+        }
+
+        // Iteration for extracting options.
+        for (CategoriesDTO category : categories) {
+            List<SubCategoriesDTO> subCategories = category.getSubCategories();
+
+            for (SubCategoriesDTO subCategory : subCategories) {
+                List<CategoriesDTO> options = categoriesDTOS.stream()
+                        .filter(e -> "OPTION".equals(e.getCategoriesType()) && e.getParentCategoryId() == subCategory.getPk())
+                        .collect(Collectors.toList());
+
+                // Map the options with sub categories.
+                for(CategoriesDTO cat: options) {
+                    OptionsDTO option = new OptionsDTO();
+                    option.setUuid(cat.getUuid());
+                    option.setName(cat.getName());
+                    subCategory.getOptions().add(option);
+                };
+
+                Collections.sort(subCategory.getOptions(), new OptionNameComparator());
+                // Remove the extracted sub categories.
+                categoriesDTOS.removeAll(options);
+            }
+
+            Collections.sort(subCategories, new SubCategoryNameComparator());
+        }
+
+        Collections.sort(categories, new CategoryNameComparator());
+
+        return categories;
+    }
+
     private List<CategoriesDTO> fetchCategories(HttpSession session) {
-        List<CategoriesDTO> categories = (List<CategoriesDTO>) session.getAttribute("categories");
+        List<CategoriesDTO> existingCategories = (List<CategoriesDTO>) session.getAttribute("categories");
         UserDetailsDTO userDetailsDTO = (UserDetailsDTO) session.getAttribute("userDetails");
 
-        if (categories == null) {
+        if (existingCategories == null) {
             try {
-                HttpResponse<String> httpResponse = dashboardService
-                        .fetchCategories(userDetailsDTO);
-
-                HttpStatus statusCode = HttpStatus.resolve(httpResponse.statusCode());
+                Response<List<CategoriesDTO>> httpResponse = dashboardService.fetchCategories(userDetailsDTO);
+                HttpStatus statusCode = HttpStatus.resolve(httpResponse.getCode());
 
                 switch (statusCode) {
-                    case OK -> {
-                        Response<List<CategoriesDTO>> response = objectMapper.readValue(httpResponse.body(), new TypeReference<>() {});
-                        session.setAttribute("categories", response.getResult());
+                    case OK: {
+                        List<CategoriesDTO> categories = splitCategories(httpResponse.getResult());
+                        session.setAttribute("categories", categories);
+                        return categories;
                     }
 
-                    case BAD_REQUEST ->
-                            log.warn("Roles are not found for user: {}", userDetailsDTO.getUsername());
-
-                    case INTERNAL_SERVER_ERROR ->
-                            log.warn("Something went wrong while fetching roles for user: {}", userDetailsDTO.getUsername());
+                    case BAD_REQUEST: {
+                        log.warn("Categories are not for user: {}", userDetailsDTO.getUsername());
+                        break;
+                    }
+                    case INTERNAL_SERVER_ERROR: {
+                        log.warn("Something went wrong while fetching categories for user: {}", userDetailsDTO
+                                .getUsername());
+                        break;
+                    }
+                    default: {
+                        log.error("Unknown status code: {}", statusCode);
+                    }
                 }
-
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
         }
 
-        return categories;
-    }
-
-    private Map<String, List<CategoriesDTO>> transformCategories(Response<List<CategoriesDTO>> response) {
-        List<CategoriesDTO> result = response.getResult();
-
-        List<CategoriesDTO> categories = result.stream().filter(e -> e.getCategoriesType().equals("CATEGORY"))
-                .collect(Collectors.toList());
-
-        List<CategoriesDTO> subCategories = result.stream().filter(e -> e.getCategoriesType().equals("SUB_CATEGORY"))
-                .collect(Collectors.toList());
-
-        List<CategoriesDTO> options = result.stream().filter(e -> e.getCategoriesType().equals("OPTION"))
-                .collect(Collectors.toList());
-
-        int categorySize = categories.size();
-        int subcategorySize = subCategories.size();
-        int optionsSize = options.size();
-
-        Map<String, List<SubCategoriesDTO>> categoriesMap = categories.get(0).getCategoriesMap();
-
-        for (int count = 0; count < categorySize; categorySize++) {
-
-            for (int countValue = 0; countValue < subcategorySize; subcategorySize++) {
-
-                for (int optionValue = 0; optionValue < optionsSize; optionsSize++) {
-
-                }
-            }
-        }
-
-        return null;
+        return existingCategories;
     }
 
     private void setAdminRatingProperties(ModelAndView modelAndView, UserDetailsDTO userDetailsDTO) {
@@ -217,30 +313,54 @@ public class DashboardController {
 
     public List<MemberDTO> loadMembers(UserDetailsDTO userDetailsDTO) {
         try {
-            HttpResponse<String> teamsResponse = dashboardService.fetchMembers(userDetailsDTO);
-            HttpStatus statusCode = HttpStatus.resolve(teamsResponse.statusCode());
+            Response<List<MemberDTO>> response = dashboardService.fetchMembers(userDetailsDTO, false);
+            HttpStatus statusCode = HttpStatus.resolve(response.getCode());
 
-            return switch (statusCode) {
-                case OK -> {
-                    Response<List<MemberDTO>> response = objectMapper.readValue(teamsResponse.body(), new TypeReference<>() {});
-                    yield response.getResult();
+            switch (statusCode) {
+                case OK: {
+                    return response.getResult();
                 }
 
-                case BAD_REQUEST -> {
-                    log.warn("Roles are not found for user: {}", userDetailsDTO.getUsername());
-                    yield List.of();
+                case BAD_REQUEST: {
+                    log.warn("Members are not found for user: {}", userDetailsDTO.getUsername());
+                    break;
                 }
 
-                case INTERNAL_SERVER_ERROR -> {
-                    log.warn("Something went wrong while fetching roles for user: {}", userDetailsDTO.getUsername());
-                    yield List.of();
+                case INTERNAL_SERVER_ERROR: {
+                    log.warn("Something went wrong while fetching members for user: {}", userDetailsDTO.getUsername());
+                    break;
                 }
-                default -> List.of();
 
-            };
+                default:
+                    log.error("Unknown response code!");
+                    return Collections.EMPTY_LIST;
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return List.of();
+
+        return Collections.EMPTY_LIST;
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
+    }
+
+    @PostMapping(path = "/assign-teams", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Response<String>> assignTeams(@RequestParam MultiValueMap multiValueMap, HttpSession session) {
+
+        List data = (List) multiValueMap.get("data");
+
+        try {
+            dashboardService.assignTeams((String) data.get(0), (UserDetailsDTO) session.getAttribute("userDetails"));
+            return ResponseEntity.ok(Response.ok("Team(s) assigned successfully!"));
+        } catch (Exception e) {
+            log.error("Could not map the assign team data!", e);
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                Response.of(HttpStatus.INTERNAL_SERVER_ERROR, "Team(s) assigned successfully!"));
     }
 }

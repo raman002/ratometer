@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     	/* If the request is coming from one of the below URIs then 
     	 * we will allow them as we don't require authentication for them.
     	*/
-    	if (requestURI.contains("/authenticate")) {
+    	if (requestURI.contains("/authenticate") || requestURI.contains("/users/create-user")) {
     		filterChain.doFilter(httpServletRequest, httpServletResponse);
     		return;
     	}

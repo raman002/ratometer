@@ -17,7 +17,7 @@ public class CategoriesMaster extends AbstractBaseEntity {
 
     @Id
     @Column(name = "categories_master_id")
-    @SequenceGenerator(name = "categories_master_seq", sequenceName = "categories_master_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "categories_master_seq", sequenceName = "categories_categories_master_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categories_master_seq")
     private Long pk;
 

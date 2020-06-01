@@ -1,21 +1,28 @@
 package io.cfapps.ratometer.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cfapps.ratometer.config.ApplicationProperties;
 import io.cfapps.ratometer.model.dto.CategoriesDTO;
+import io.cfapps.ratometer.model.dto.MemberDTO;
+import io.cfapps.ratometer.model.dto.TeamDTO;
 import io.cfapps.ratometer.model.dto.UserDetailsDTO;
-import org.springframework.http.HttpStatus;
+import io.cfapps.ratometer.util.web.Response;
+import org.apache.catalina.User;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class DashboardService {
@@ -28,64 +35,99 @@ public class DashboardService {
         this.objectMapper = objectMapper;
     }
 
-    public HttpResponse<String> loadUserRoles(UserDetailsDTO userDetailsDTO) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .header("Authorization", userDetailsDTO.getAuthToken())
-                .header("username", userDetailsDTO.getUsername())
-                .GET()
-                .uri(URI.create(applicationProperties.getApiBaseURL() + "/user-roles/get-by-user"))
-                .build();
+    public Response<List<String>> loadUserRoles(UserDetailsDTO userDetailsDTO) throws IOException {
 
-        HttpResponse<String> httpResponse = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build()
-                .send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        Response<List<String>> response;
 
-        return httpResponse;
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(applicationProperties.getApiBaseURL() + "/user-roles/get-by-user");
+
+            httpGet.setHeader("Authorization", userDetailsDTO.getAuthToken());
+            httpGet.setHeader("username", userDetailsDTO.getUsername());
+
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+
+            response = objectMapper.readValue(responseBody, new TypeReference<Response<List<String>>>() {});
+        }
+        return response;
     }
 
-    public HttpResponse<String> fetchTeams(UserDetailsDTO userDetailsDTO) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .header("Authorization", userDetailsDTO.getAuthToken())
-                .GET()
-                .uri(URI.create(applicationProperties.getApiBaseURL() + "/teams/get-all"))
-                .build();
+    public Response<List<TeamDTO>> fetchTeams(UserDetailsDTO userDetailsDTO) throws IOException {
+        Response<List<TeamDTO>> response = null;
 
-        HttpResponse<String> httpResponse = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build()
-                .send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(applicationProperties.getApiBaseURL() + "/teams/get-all");
 
-        return httpResponse;
+            httpGet.setHeader("Authorization", userDetailsDTO.getAuthToken());
+
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            response = objectMapper.readValue(responseBody, new TypeReference<Response<List<TeamDTO>>>() {
+            });
+        }
+        return response;
     }
 
-    public HttpResponse<String> fetchMembers(UserDetailsDTO userDetailsDTO) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .header("Authorization", userDetailsDTO.getAuthToken())
-                .header("username", userDetailsDTO.getUsername())
-                .GET()
-                .uri(URI.create(applicationProperties.getApiBaseURL() + "/users/get-all-team-members"))
-                .build();
+    public Response<List<MemberDTO>> fetchMembers(UserDetailsDTO userDetailsDTO, boolean fetchUnassigned) throws IOException {
+        Response<List<MemberDTO>> response;
+        StringBuilder URL = new StringBuilder(applicationProperties.getApiBaseURL());
 
-        HttpResponse<String> httpResponse = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build()
-                .send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        if (fetchUnassigned) {
+            URL.append("/users/get-unassigned-members");
+        }
+        else {
+            URL.append("/users/get-all-team-members");
+        }
 
-        return httpResponse;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(URL.toString());
+
+            httpGet.setHeader("Authorization", userDetailsDTO.getAuthToken());
+            httpGet.setHeader("username", userDetailsDTO.getUsername());
+
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            response = objectMapper
+                    .readValue(responseBody, new TypeReference<Response<List<MemberDTO>>>() {
+                    });
+        }
+        return response;
     }
 
-    public HttpResponse<String> fetchCategories(UserDetailsDTO userDetailsDTO) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .header("Authorization", userDetailsDTO.getAuthToken())
-                .uri(URI.create(applicationProperties.getApiBaseURL() + "/categories/get-all"))
-                .build();
+    public Response<List<CategoriesDTO>> fetchCategories(UserDetailsDTO userDetailsDTO) throws IOException {
+        Response<List<CategoriesDTO>> response = null;
 
-        HttpResponse<String> httpResponse = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build()
-                .send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(applicationProperties.getApiBaseURL() + "/categories/get-all");
 
-        return httpResponse;
+            httpGet.setHeader("Authorization", userDetailsDTO.getAuthToken());
+            httpGet.setHeader("username", userDetailsDTO.getUsername());
+
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            response = objectMapper.readValue(responseBody, new TypeReference<Response<List<CategoriesDTO>>>() {
+            });
+        }
+        return response;
+    }
+
+    public Response<?> assignTeams(String requestBody, UserDetailsDTO userDetailsDTO) throws IOException {
+        Response<?> response = null;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/team/assign-teams");
+            httpPost.setEntity(new StringEntity(requestBody));
+
+            httpPost.setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+            httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
+
+            CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            response = objectMapper.readValue(responseBody, new TypeReference<Response<List<CategoriesDTO>>>() {
+            });
+        }
+        return response;
     }
 }
