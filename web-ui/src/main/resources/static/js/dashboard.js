@@ -139,6 +139,10 @@ let dashboardTables = {
 
     loadTeamTable: function (options) {
         $('#teams').DataTable(options);
+
+        // Adding save button;
+        $('#teams_filter')
+            .append($('<button type="button" data-target="#add_team_modal" data-toggle="modal" class="btn btn-success ml-3 btn-sm"><i class="fa fa-plus mr-1"></i>Add</button>'));
     },
 
     loadMembersTable: function (options) {
@@ -146,9 +150,46 @@ let dashboardTables = {
     },
 
     loadUnassignedMembersTable: function (options) {
-        $('#navTabContentMembers').DataTable(options);
+        $('#teamAssignment').DataTable(options);
         // Adding save button;
-        $('#navTabContentMembers_filter')
+        $('#teamAssignment_filter')
             .append($('<button type="button" onclick="dashboardService.assignTeams()" class="btn btn-success ml-3 btn-sm"><i class="fa fa-save mr-1"></i>Save</button>'));
+    }
+}
+
+let teamService = {
+
+    createTeam: function () {
+
+        let teamName = $('#teamName').val().trim();
+
+        if (teamName === '') {
+            alert("Please enter a valid team name!");
+            return;
+        }
+
+        $.blockUI(getBlockUIProperties());
+
+        $.ajax({
+            url: '/dashboard/create-team',
+            method: 'post',
+            data: {
+                'data': JSON.stringify({'teamName': teamName})
+            }
+
+        }).always(function (response) {
+            if (response && response.code) {
+                let responseCode = response.code;
+
+                $.unblockUI();
+
+                if (responseCode == 200) {
+                    alert('Team is created successfully!');
+                    window.location.href = '?teams';
+                } else if (responseCode == 409) {
+                    alert(teamName + ' already exists!');
+                }
+            }
+        })
     }
 }

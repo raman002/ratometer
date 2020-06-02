@@ -1,11 +1,14 @@
 package io.cfapps.ratometer.model.dto;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.UUID;
 
 public class TeamMasterDTO implements Serializable {
 
     private UUID uuid;
+
+    @NotBlank
     private String teamName;
     private Long size;
 

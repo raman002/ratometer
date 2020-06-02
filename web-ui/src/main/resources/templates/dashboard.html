@@ -8,6 +8,7 @@
 </head>
 <body>
 <th:block th:replace="util/navbar :: navbar"></th:block>
+<th:block th:replace="add_team :: add_team_modal"></th:block>
 
 <nav>
     <div class="nav nav-tabs m-3" id="nav-tab" role="tablist">
@@ -37,7 +38,6 @@
 
         <button th:if="${userRatingTabActive} and ${!isRatingAlreadySubmitted}"
                 type="button" onclick="userService.submitRating()" class="btn btn-success mb-1 ml-auto btn-sm"><i class="fa fa-lock mr-2"></i>Submit Rating</button>
-
     </div>
 </nav>
 
@@ -83,7 +83,7 @@
 </div>
 
 <div class="tab-content col-12" th:if="${teamAssignmentTabActive}">
-    <table class="table table-striped dt-responsive shadow-sm" id="navTabContentMembers">
+    <table class="table table-striped dt-responsive shadow-sm" id="teamAssignment">
         <thead class="bg-info text-light">
         <tr>
             <th>#</th>

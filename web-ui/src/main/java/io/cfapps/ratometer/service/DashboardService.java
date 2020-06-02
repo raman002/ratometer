@@ -54,7 +54,7 @@ public class DashboardService {
     }
 
     public Response<List<TeamDTO>> fetchTeams(UserDetailsDTO userDetailsDTO) throws IOException {
-        Response<List<TeamDTO>> response = null;
+        Response<List<TeamDTO>> response;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(applicationProperties.getApiBaseURL() + "/teams/get-all");
@@ -97,7 +97,7 @@ public class DashboardService {
     }
 
     public Response<List<CategoriesDTO>> fetchCategories(UserDetailsDTO userDetailsDTO) throws IOException {
-        Response<List<CategoriesDTO>> response = null;
+        Response<List<CategoriesDTO>> response;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(applicationProperties.getApiBaseURL() + "/categories/get-all");
@@ -114,7 +114,7 @@ public class DashboardService {
     }
 
     public Response<?> assignTeams(String requestBody, UserDetailsDTO userDetailsDTO) throws IOException {
-        Response<?> response = null;
+        Response<?> response;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/team/assign-teams");
@@ -132,7 +132,7 @@ public class DashboardService {
     }
 
     public Response<?> submitUserRatings(String requestBody, UserDetailsDTO userDetailsDTO) throws IOException {
-        Response<?> response = null;
+        Response<?> response;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/rating/submit-user-ratings");
@@ -151,7 +151,7 @@ public class DashboardService {
     }
 
     public Response<String> ratingExists(UserDetailsDTO userDetailsDTO) throws IOException {
-        Response<String> response = null;
+        Response<String> response;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/rating/rating-exists");
@@ -165,6 +165,25 @@ public class DashboardService {
             });
         }
 
+        return response;
+    }
+
+
+    public Response<String> createTeam(String requestBody, UserDetailsDTO userDetailsDTO) throws IOException {
+        Response<String> response;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/teams/create-team");
+            httpPost.setEntity(new StringEntity(requestBody));
+
+            httpPost.setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+            httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
+
+            CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            response = objectMapper.readValue(responseBody, new TypeReference<Response<String>>() {
+            });
+        }
         return response;
     }
 }

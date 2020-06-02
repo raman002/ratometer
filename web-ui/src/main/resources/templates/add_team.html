@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="add_team_modal">
+    <div class="modal fade" id="add_team_modal" tabindex="-1" role="dialog" aria-labelledby="add_team_label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="add_team_label">Add Team</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="teamName" class="col-form-label">Team Name</label>
+                            <input type="text" class="form-control" id="teamName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="justify-content-center modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" onclick="teamService.createTeam()" class="btn btn-info">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</html>

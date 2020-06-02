@@ -33,4 +33,8 @@ public class TeamMasterService extends BaseService<TeamMasterRepository, TeamMas
         target.setUuid(source.getUuid());
         target.setTeamName(source.getTeamName());
     }
+
+    public Boolean isTeamExist(String teamName) {
+        return repository.isTeamExist(teamName);
+    }
 }
