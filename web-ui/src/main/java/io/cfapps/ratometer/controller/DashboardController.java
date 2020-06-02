@@ -151,6 +151,7 @@ public class DashboardController {
             } else if (requestParams.containsKey("user-rating")) {
                 modelAndView.addObject("userRatingTabActive", true);
                 modelAndView.addObject("userRatingClass", "active");
+                modelAndView.addObject("isRatingAlreadySubmitted", false);
 
                 if (dashboardService.ratingExists(userDetailsDTO).getCode() == HttpStatus.OK.value()) {
                     modelAndView.addObject("isRatingAlreadySubmitted", true);
