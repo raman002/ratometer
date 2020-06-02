@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,5 +22,9 @@ public class CategoriesMasterService extends BaseService<CategoriesMasterReposit
 
     public List<CategoriesMaster> findAllByIsDeleted() {
         return repository.findAllByIsDeleted(false);
+    }
+
+    public Long findPrimaryKeyByCategoryUid(UUID uuid) {
+        return repository.findPrimaryKeyByCategoryUid(uuid);
     }
 }

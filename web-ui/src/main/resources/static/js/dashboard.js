@@ -32,9 +32,52 @@ function getBlockUIProperties() {
 }
 
 let userService = {
-    saveRating: function () {
+    submitRating: function () {
+        let dataArray = [];
 
+        $.blockUI(getBlockUIProperties());
 
+        $('input[type="radio"]').each(function (index, option) {
+            if (option && option.checked) {
+
+                let $option = $(option);
+                let optionUid = $option.attr("id");
+                let orderId = $option.attr("value");
+
+                dataArray.push({
+                    'optionUid': optionUid,
+                    'orderId': orderId
+                })
+            }
+        });
+
+        if (dataArray.length == 0) {
+            $.unblockUI();
+            alert("Please choose a rating to submit!")
+            return;
+        }
+
+        $.ajax({
+            url: "/dashboard/submit-user-ratings",
+            method: "post",
+            data: {"data": JSON.stringify(dataArray)},
+        })
+            .done(function (response) {
+            })
+            .always(function (jsonResponse) {
+                $.unblockUI();
+
+                if (jsonResponse) {
+                    if (parseInt(jsonResponse.code) == 200) {
+                        alert(jsonResponse.message);
+                        window.location.href = '/dashboard?intro';
+                    } else {
+                        alert('Something went wrong while submitting ratings!');
+                    }
+                } else {
+                    alert('Something went wrong while submitting ratings!');
+                }
+            });
     }
 }
 
@@ -71,26 +114,24 @@ let dashboardService = {
         $.ajax({
             url: "/dashboard/assign-teams",
             method: "post",
-            dataType: 'application/json',
             data: {'data': JSON.stringify(dataArray)},
         })
-        .done(function (response) {
-        })
-        .always(function (response) {
-            $.unblockUI();
-            let jsonResponse = JSON.parse(response.responseText);
+            .done(function (response) {
+            })
+            .always(function (jsonResponse) {
+                $.unblockUI();
 
-            if (jsonResponse) {
-                if (parseInt(jsonResponse.code) == 200) {
-                    alert(jsonResponse.message);
-                    window.location.href = '/dashboard?assign-teams';
+                if (jsonResponse) {
+                    if (parseInt(jsonResponse.code) == 200) {
+                        alert(jsonResponse.message);
+                        window.location.href = '/dashboard?assign-teams';
+                    } else {
+                        alert('Something went wrong while assigning teams!');
+                    }
                 } else {
                     alert('Something went wrong while assigning teams!');
                 }
-            } else {
-                alert('Something went wrong while assigning teams!');
-            }
-        });
+            });
     }
 }
 

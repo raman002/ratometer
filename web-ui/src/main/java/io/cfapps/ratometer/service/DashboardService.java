@@ -130,4 +130,41 @@ public class DashboardService {
         }
         return response;
     }
+
+    public Response<?> submitUserRatings(String requestBody, UserDetailsDTO userDetailsDTO) throws IOException {
+        Response<?> response = null;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/rating/submit-user-ratings");
+            httpPost.setEntity(new StringEntity(requestBody));
+
+            httpPost.setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+            httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
+            httpPost.setHeader("username", userDetailsDTO.getUsername());
+
+            CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            response = objectMapper.readValue(responseBody, new TypeReference<Response<List<CategoriesDTO>>>() {
+            });
+        }
+        return response;
+    }
+
+    public Response<String> ratingExists(UserDetailsDTO userDetailsDTO) throws IOException {
+        Response<String> response = null;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/rating/rating-exists");
+
+            httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
+            httpPost.setHeader("username", userDetailsDTO.getUsername());
+
+            CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
+            String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            response = objectMapper.readValue(responseBody, new TypeReference<Response<String>>() {
+            });
+        }
+
+        return response;
+    }
 }

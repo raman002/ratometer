@@ -6,6 +6,7 @@ import java.util.UUID;
 public class OptionsDTO implements Serializable {
     private UUID uuid;
     private String name;
+    private Integer optionOrderId;
 
     public String getName() {
         return name;
@@ -21,5 +22,13 @@ public class OptionsDTO implements Serializable {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public Integer getOptionOrderId() {
+        return optionOrderId;
+    }
+
+    public void setOptionOrderId(Integer optionOrderId) {
+        this.optionOrderId = optionOrderId;
     }
 }

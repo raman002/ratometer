@@ -33,6 +33,9 @@ public class CategoriesMaster extends AbstractBaseEntity {
     @Column(name = "type", unique = true)
     private CategoriesType categoriesType;
 
+    @Column(name = "option_order_id")
+    private Integer optionOrderId;
+
     public Long getPk() {
         return pk;
     }
@@ -59,5 +62,13 @@ public class CategoriesMaster extends AbstractBaseEntity {
 
     public void setCategoriesType(CategoriesType categoriesType) {
         this.categoriesType = categoriesType;
+    }
+
+    public Integer getOptionOrderId() {
+        return optionOrderId;
+    }
+
+    public void setOptionOrderId(Integer optionOrderId) {
+        this.optionOrderId = optionOrderId;
     }
 }

@@ -35,8 +35,8 @@
         <a th:if="${isUser}" class="nav-item nav-link" id="nav-profile-tab"
            th:href="@{?user-rating}" th:classappend="${userRatingClass}" role="tab" aria-controls="nav-profile">Rating</a>
 
-        <button th:if="${userRatingTabActive}"
-                type="button" class="btn btn-success mb-1 ml-auto btn-sm"><i class="fa fa-lock mr-2"></i>Submit Rating</button>
+        <button th:if="${userRatingTabActive} and ${!isRatingAlreadySubmitted}"
+                type="button" onclick="userService.submitRating()" class="btn btn-success mb-1 ml-auto btn-sm"><i class="fa fa-lock mr-2"></i>Submit Rating</button>
 
     </div>
 </nav>
@@ -132,7 +132,20 @@
 
 <!--User rating tab-->
 <div class="tab-content col-12" id="nav-tabContent-members" th:if="${userRatingTabActive}">
-    <div class="card bg-light shadow-sm mb-4" th:each="category: ${categories}">
+
+    <div th:if="${isRatingAlreadySubmitted}">
+        <div class="card card-deck">
+            <div class="card-header fa-2x form-inline">
+                <i class="btn-outline-success fa fa-check-circle icon-md fa-2x"></i>
+            </div>
+
+            <div class="card-body font-roboto font-x-large">
+                <h2>Rating has been submitted!</h2>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${!isRatingAlreadySubmitted}" class="card bg-light shadow-sm mb-4" th:each="category: ${categories}">
         <div class="bg-info card-header text-white" th:text="${category.name}"></div>
         <div class="card-body">
             <div class="card bg-light mb-2" th:each="subCategory: ${category.subCategories}">
@@ -140,7 +153,7 @@
                 <div class="card-body">
                     <div th:each="option: ${subCategory.options}">
                         <input type="radio" class="mr-2" th:id="${option.uuid}" th:name="${subCategory.name}"
-                        th:value="${option.uuid}">
+                        th:value="${option.optionOrderId}">
 
                         <label th:for="${option.uuid}" th:text="${option.name}"></label>
                     </div>

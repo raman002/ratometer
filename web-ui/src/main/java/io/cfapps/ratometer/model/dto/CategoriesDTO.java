@@ -10,6 +10,7 @@ public class CategoriesDTO implements Serializable {
     private Long parentCategoryId;
     private String categoriesType;
     private UUID uuid;
+    private Integer optionOrderId;
 
     private List<SubCategoriesDTO> subCategories = new ArrayList<>();
 
@@ -59,5 +60,13 @@ public class CategoriesDTO implements Serializable {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public Integer getOptionOrderId() {
+        return optionOrderId;
+    }
+
+    public void setOptionOrderId(Integer optionOrderId) {
+        this.optionOrderId = optionOrderId;
     }
 }

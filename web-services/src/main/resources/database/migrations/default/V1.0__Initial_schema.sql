@@ -123,6 +123,7 @@ create table categories_master
     version              int              default 0,
 
     parent_category_id   bigint,
+    option_order_id int,
     name                 text    not null,
     type                 text    not null,
 

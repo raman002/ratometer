@@ -68,12 +68,12 @@ public class LoginController {
             return new RedirectView("/login");
         }
 
-        String token = Stream.of(response.getResult()).filter(e -> e.getName().equals("Authorization"))
-                .findFirst().get().getValue();
         int statusCode = response.getCode();
 
         // If status code is 400 then it means the credentials are rejected.
         if (statusCode == HttpStatus.OK.value()) {
+            String token = Stream.of(response.getResult()).filter(e -> e.getName().equals("Authorization"))
+                    .findFirst().get().getValue();
             prepareUserDetails(session, loginDTO, token);
             UserDetailsDTO userDetails = (UserDetailsDTO) session.getAttribute("userDetails");
 

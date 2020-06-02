@@ -103,4 +103,8 @@ public class UserService extends BaseService<UserRepository, User, Long> {
     public User findByUsername(String username) {
         return repository.findUserByUsernameAndIsDeletedFalse(username);
     }
+
+    public Long findPrimaryKeyByUsername(String username) {
+        return repository.findPrimaryKeyByUsername(username);
+    }
 }

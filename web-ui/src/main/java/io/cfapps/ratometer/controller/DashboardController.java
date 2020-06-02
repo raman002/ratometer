@@ -57,7 +57,11 @@ public class DashboardController {
                 httpSession.setAttribute("userDetails", userDetailsDTO);
             }
 
-            handleRedirect(modelAndView, requestParams, userDetailsDTO, httpSession);
+            try {
+                handleRedirect(modelAndView, requestParams, userDetailsDTO, httpSession);
+            } catch (IOException e) {
+                log.error("Something went wrong while handling dashboard redirect!", e);
+            }
         }
 
         return modelAndView;
@@ -122,7 +126,7 @@ public class DashboardController {
     }
 
     private void handleRedirect(ModelAndView modelAndView, Map<String, Object> requestParams,
-                                UserDetailsDTO userDetailsDTO, HttpSession httpSession) {
+                                UserDetailsDTO userDetailsDTO, HttpSession httpSession) throws IOException {
         modelAndView.addObject("title", "Dashboard");
         modelAndView.addObject("showLogout", true);
         modelAndView.addAllObjects(requestParams);
@@ -145,6 +149,13 @@ public class DashboardController {
             if (requestParams.containsKey("intro")) {
                 prepareIntroductionView(modelAndView);
             } else if (requestParams.containsKey("user-rating")) {
+                modelAndView.addObject("userRatingTabActive", true);
+                modelAndView.addObject("userRatingClass", "active");
+
+                if (dashboardService.ratingExists(userDetailsDTO).getCode() == HttpStatus.OK.value()) {
+                    modelAndView.addObject("isRatingAlreadySubmitted", true);
+                    return;
+                }
                 setUserCategories(modelAndView, httpSession);
             }
         }
@@ -195,8 +206,6 @@ public class DashboardController {
 
 
     private void setUserCategories(ModelAndView modelAndView, HttpSession session) {
-        modelAndView.addObject("userRatingTabActive", true);
-        modelAndView.addObject("userRatingClass", "active");
         modelAndView.addObject("categories", fetchCategories(session));
     }
 
@@ -241,6 +250,7 @@ public class DashboardController {
                     OptionsDTO option = new OptionsDTO();
                     option.setUuid(cat.getUuid());
                     option.setName(cat.getName());
+                    option.setOptionOrderId(cat.getOptionOrderId());
                     subCategory.getOptions().add(option);
                 };
 
@@ -361,6 +371,22 @@ public class DashboardController {
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                Response.of(HttpStatus.INTERNAL_SERVER_ERROR, "Team(s) assigned successfully!"));
+                Response.of(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong while assigning teams!"));
+    }
+
+    @PostMapping(path="/submit-user-ratings", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResponseEntity<Response<String>> submitUserRatings(@RequestParam MultiValueMap multiValueMap, HttpSession session) {
+
+        List data = (List) multiValueMap.get("data");
+
+        try {
+            dashboardService.submitUserRatings((String) data.get(0), (UserDetailsDTO) session.getAttribute("userDetails"));
+            return ResponseEntity.ok(Response.ok("Rating(s) submitted successfully!"));
+        } catch (Exception e) {
+            log.error("Could not submit the ratings!", e);
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                Response.of(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong while submitting ratings!"));
     }
 }
