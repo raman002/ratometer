@@ -17,8 +17,7 @@ public class RoleMaster extends AbstractBaseEntity {
     @Id
     @JsonIgnore
     @Column(name = "role_master_id")
-    @SequenceGenerator(name = "role_master_seq", sequenceName = "role_master_role_master_id_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_master_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pk;
 
     @NotNull

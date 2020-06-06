@@ -14,8 +14,7 @@ import javax.validation.constraints.NotNull;
 public class Rating extends BaseEntity {
     @Id
     @Column(name = "rating_id")
-    @SequenceGenerator(name = "rating_id_seq", sequenceName = "rating_rating_id_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rating_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ratingId;
 
     @NotNull
