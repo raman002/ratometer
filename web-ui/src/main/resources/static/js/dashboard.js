@@ -32,10 +32,15 @@ function getBlockUIProperties() {
 }
 
 let userService = {
-    submitRating: function () {
-        let dataArray = [];
 
-        $.blockUI(getBlockUIProperties());
+    validate: function() {
+        let validator = {};
+
+        validator.isValid = false;
+        validator.isInvalid = true;
+        validator.expectedRatings = 16;
+        validator.receivedRatings = 0;
+        validator.dataArray = [];
 
         $('input[type="radio"]').each(function (index, option) {
             if (option && option.checked) {
@@ -44,23 +49,38 @@ let userService = {
                 let optionUid = $option.attr("id");
                 let orderId = $option.attr("value");
 
-                dataArray.push({
+                validator.dataArray.push({
                     'optionUid': optionUid,
                     'orderId': orderId
                 })
             }
         });
 
-        if (dataArray.length == 0) {
+        validator.receivedRatings = validator.dataArray.length;
+
+        if (validator.expectedRatings == validator.receivedRatings) {
+            validator.isValid = true;
+            validator.isInvalid = false;
+        }
+
+        return validator;
+    },
+
+    submitRating: function (message) {
+
+        let validator = this.validate();
+        $.blockUI(getBlockUIProperties());
+
+        if (validator.isInvalid) {
+            alert(`Please enter all the ratings!\nExpected Ratings: ${validator.expectedRatings}\nReceived Ratings: ${validator.receivedRatings}`);
             $.unblockUI();
-            alert("Please choose a rating to submit!")
             return;
         }
 
         $.ajax({
             url: "/dashboard/submit-user-ratings",
             method: "post",
-            data: {"data": JSON.stringify(dataArray)},
+            data: {'data' : JSON.stringify(validator.dataArray)},
         })
             .done(function (response) {
             })
