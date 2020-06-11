@@ -12,12 +12,16 @@ public class RatingService extends BaseService<RatingRepository, Rating, Long> {
 
     private final RatingRepository repository;
 
-    public RatingService(RatingRepository repository, RatingRepository repository1) {
+    public RatingService(RatingRepository repository) {
         super(repository);
-        this.repository = repository1;
+        this.repository = repository;
     }
 
     public Boolean existsRatingByUsersId(Long usersId) {
         return repository.existsRatingByUsersId(usersId);
+    }
+
+    public Boolean existsRatingByUsersIdAndQuarter(Long usersId, Integer quarter) {
+        return repository.existsRatingByUsersIdAndQuarter(usersId, quarter);
     }
 }

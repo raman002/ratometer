@@ -14,9 +14,9 @@ public class TeamService extends BaseService<TeamRepository, Team, Long> {
 
     private final TeamRepository repository;
 
-    public TeamService(TeamRepository repository, TeamRepository repository1) {
+    public TeamService(TeamRepository repository) {
         super(repository);
-        this.repository = repository1;
+        this.repository = repository;
     }
 
     public List<String> fetchTeamsByUsername(String username) {

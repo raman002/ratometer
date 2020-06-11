@@ -14,6 +14,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -150,14 +151,15 @@ public class DashboardService {
         return response;
     }
 
-    public Response<String> ratingExists(UserDetailsDTO userDetailsDTO) throws IOException {
+    public Response<String> ratingExists(UserDetailsDTO userDetailsDTO, Integer quarter) throws IOException {
         Response<String> response;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/rating/rating-exists");
+            httpPost.setEntity(new StringEntity(String.format("{\"username\": \"%s\", \"quarter\": \"%s\"}",
+                    userDetailsDTO.getUsername(), quarter), ContentType.APPLICATION_JSON));
 
             httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
-            httpPost.setHeader("username", userDetailsDTO.getUsername());
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);

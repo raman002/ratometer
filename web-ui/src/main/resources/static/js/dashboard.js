@@ -34,53 +34,61 @@ function getBlockUIProperties() {
 let userService = {
 
     validate: function() {
-        let validator = {};
+            let expectedRatings = 16;
+            let receivedRatings;
+            let validator = {
+                dataArray: [],
+                getData: function () {
+                    return this.dataArray;
+                }
+            };
+            let quarter = $('#quarter').val();
 
-        validator.isValid = false;
-        validator.isInvalid = true;
-        validator.expectedRatings = 16;
-        validator.receivedRatings = 0;
-        validator.dataArray = [];
-
-        $('input[type="radio"]').each(function (index, option) {
-            if (option && option.checked) {
-
-                let $option = $(option);
-                let optionUid = $option.attr("id");
-                let orderId = $option.attr("value");
-
-                validator.dataArray.push({
-                    'optionUid': optionUid,
-                    'orderId': orderId
-                })
-            }
-        });
-
-        validator.receivedRatings = validator.dataArray.length;
-
-        if (validator.expectedRatings == validator.receivedRatings) {
-            validator.isValid = true;
-            validator.isInvalid = false;
-        }
-
-        return validator;
-    },
-
-    submitRating: function (message) {
-
-        let validator = this.validate();
-        $.blockUI(getBlockUIProperties());
-
-        if (validator.isInvalid) {
-            alert(`Please enter all the ratings!\nExpected Ratings: ${validator.expectedRatings}\nReceived Ratings: ${validator.receivedRatings}`);
+        if (quarter === '0') {
+            alert('Please select a quarter!');
             $.unblockUI();
             return;
         }
 
+        $('input[type="radio"]').each(function (index, option) {
+                if (option && option.checked) {
+
+                    let $option = $(option);
+                    let optionUid = $option.attr("id");
+                    let orderId = $option.attr("value");
+
+                    validator.dataArray.push({
+                        'optionUid': optionUid,
+                        'orderId': orderId,
+                        'quarter': quarter
+                    })
+                }
+            });
+
+            receivedRatings = validator.dataArray.length;
+
+
+             if (expectedRatings != receivedRatings) {
+                 $.unblockUI();
+                alert(`Please enter all the ratings!\nExpected Ratings: ${expectedRatings}\nReceived Ratings: ${receivedRatings}`);
+                return;
+            }
+
+       return validator;
+    },
+
+    submitRating: function (message) {
+
+        $.blockUI(getBlockUIProperties());
+
+        let dataArr = this.validate() ? this.validate().getData() : [];
+
+        if (dataArr.length == 0) return;
+
         $.ajax({
             url: "/dashboard/submit-user-ratings",
             method: "post",
-            data: {'data' : JSON.stringify(validator.dataArray)},
+            data: {'data' : JSON.stringify(dataArr)},
         })
             .done(function (response) {
             })

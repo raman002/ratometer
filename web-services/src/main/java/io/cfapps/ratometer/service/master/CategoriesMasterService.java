@@ -15,9 +15,9 @@ public class CategoriesMasterService extends BaseService<CategoriesMasterReposit
 
     private final CategoriesMasterRepository repository;
 
-    public CategoriesMasterService(CategoriesMasterRepository repository, CategoriesMasterRepository repository1) {
+    public CategoriesMasterService(CategoriesMasterRepository repository) {
         super(repository);
-        this.repository = repository1;
+        this.repository = repository;
     }
 
     public List<CategoriesMaster> findAllByIsDeleted() {

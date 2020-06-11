@@ -15,29 +15,35 @@
         <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${teamsTabClass}" id="teamsTab"
            th:href="@{?teams}" role="tab" aria-controls="nav-home">Teams</a>
 
-        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${membersTabClass}"  id="nav-profile-tab"
+        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${membersTabClass}" id="nav-profile-tab"
            th:href="@{?members}" role="tab" aria-controls="nav-profile">Members</a>
 
-        <!--Tab for assigning members to different teams-->
-        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${teamAssignmentTabClass}"  id="nav-profile-tab"
+        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${teamAssignmentTabClass}"
+           id="nav-profile-tab"
            th:href="@{?assign-teams}" role="tab" aria-controls="nav-profile">Team Assignment</a>
 
-        <!--Rating tab for admins-->
-        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${adminRatingClass}"  id="nav-profile-tab"
+        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${adminRatingClass}" id="nav-profile-tab"
            th:href="@{?admin-rating}" role="tab" aria-controls="nav-profile">Ratings</a>
-
-        <!--Rating tab for users-->
-          <!--<a th:if="${isUser}" class="nav-item nav-link" th:classappend="${userRatingClass}"  id="nav-profile-tab" data-toggle="tab"
-             th:href="@{?user-rating}" role="tab" aria-controls="nav-profile">Introduction</a>-->
 
         <a th:if="${isUser}" class="nav-item nav-link" id="nav-profile-tab"
            th:href="@{?intro}" th:classappend="${introTabClass}" role="tab" aria-controls="nav-profile">Introduction</a>
 
         <a th:if="${isUser}" class="nav-item nav-link" id="nav-profile-tab"
-           th:href="@{?user-rating}" th:classappend="${userRatingClass}" role="tab" aria-controls="nav-profile">Rating</a>
+           th:href="@{?user-rating}" th:classappend="${userRatingClass}" role="tab"
+           aria-controls="nav-profile">Rating</a>
 
-        <button th:if="${userRatingTabActive} and ${!isRatingAlreadySubmitted}"
-                type="button" onclick="userService.submitRating()" class="btn btn-success mb-1 ml-auto btn-sm"><i class="fa fa-lock mr-2"></i>Submit Rating</button>
+        <div id="menubar" class="form-inline mb-1 ml-auto" th:if="${userRatingTabActive} and ${!isRatingAlreadySubmitted}">
+            <select id="quarter" class="form-control-sm mr-2 width-9">
+                <option class="text-muted" value="0">Select Quarter...</option>
+                <option value="1" th:if="${firstQuarter}">First</option>
+                <option value="2" th:if="${secondQuarter}">Second</option>
+                <option value="3" th:if="${thirdQuarter}">Third</option>
+                <option value="4" th:if="${fourthQuarter}">Fourth</option>
+            </select>
+            <button type="button" onclick="userService.submitRating()" class="btn btn-success btn-sm form-control-sm"><i
+                    class="fa fa-lock mr-2"></i>Submit Rating
+            </button>
+        </div>
     </div>
 </nav>
 
@@ -153,7 +159,7 @@
                 <div class="card-body">
                     <div th:each="option: ${subCategory.options}">
                         <input type="radio" class="mr-2" th:id="${option.uuid}" th:name="${subCategory.name}"
-                        th:value="${option.optionOrderId}">
+                               th:value="${option.optionOrderId}">
 
                         <label th:for="${option.uuid}" th:text="${option.name}"></label>
                     </div>

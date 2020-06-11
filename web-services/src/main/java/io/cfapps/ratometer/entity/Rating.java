@@ -24,6 +24,12 @@ public class Rating extends BaseEntity {
     @Column(name = "users_id", nullable = false)
     private Long usersId;
 
+    @Column(nullable = false)
+    private Integer quarter;
+
+    @Column(name = "teams_id", nullable = false)
+    private Long teamsId;
+
     public Long getRatingId() {
         return ratingId;
     }
@@ -42,5 +48,21 @@ public class Rating extends BaseEntity {
 
     public void setUsersId(Long usersId) {
         this.usersId = usersId;
+    }
+
+    public Integer getQuarter() {
+        return quarter;
+    }
+
+    public void setQuarter(Integer quarter) {
+        this.quarter = quarter;
+    }
+
+    public Long getTeamsId() {
+        return teamsId;
+    }
+
+    public void setTeamsId(Long teamsId) {
+        this.teamsId = teamsId;
     }
 }

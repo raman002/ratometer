@@ -156,13 +156,49 @@ public class DashboardController {
                 modelAndView.addObject("userRatingClass", "active");
                 modelAndView.addObject("isRatingAlreadySubmitted", false);
 
-                if (dashboardService.ratingExists(userDetailsDTO).getCode() == HttpStatus.OK.value()) {
-                    modelAndView.addObject("isRatingAlreadySubmitted", true);
+                if (hasSubmittedAllRatings(userDetailsDTO, modelAndView)) {
                     return;
                 }
                 setUserCategories(modelAndView, httpSession);
             }
         }
+    }
+
+    /**
+     * @param userDetailsDTO
+     * @param modelAndView
+     * @return true if ratings are submitted for all the quarters (Four quarters) false otherwise.
+     * @throws IOException
+     */
+    private boolean hasSubmittedAllRatings(UserDetailsDTO userDetailsDTO, ModelAndView modelAndView) throws IOException {
+        int[] quarters = {1, 2, 3, 4};
+        List<Integer> quarterList = new ArrayList<>();
+
+        modelAndView.addObject("firstQuarter", true);
+        modelAndView.addObject("secondQuarter", true);
+        modelAndView.addObject("thirdQuarter", true);
+        modelAndView.addObject("fourthQuarter", true);
+
+        for (int quarter : quarters) {
+            if (dashboardService.ratingExists(userDetailsDTO, quarter).getCode() == HttpStatus.OK.value()) {
+                quarterList.add(quarter);
+
+                switch (quarter) {
+                    case 1: modelAndView.addObject("firstQuarter", false); break;
+                    case 2: modelAndView.addObject("secondQuarter", false); break;
+                    case 3: modelAndView.addObject("thirdQuarter", false); break;
+                    case 4: modelAndView.addObject("fourthQuarter", false); break;
+                }
+            }
+        }
+
+        boolean allRatingsSubmitted = quarterList.size() == quarters.length;
+
+        if (allRatingsSubmitted) {
+            modelAndView.addObject("isRatingAlreadySubmitted", true);
+        }
+
+        return allRatingsSubmitted;
     }
 
     private void assignTeams(ModelAndView modelAndView, UserDetailsDTO userDetailsDTO, HttpSession session) {

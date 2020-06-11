@@ -43,6 +43,7 @@ public class RatingController {
         try {
             for (RatingDTO ratingDTO : ratingDTOS) {
                 Rating rating = new Rating();
+                rating.setQuarter(ratingDTO.getQuarter());
                 rating.setCategoryId(categoriesMasterService.findPrimaryKeyByCategoryUid(ratingDTO.getOptionUid()));
                 rating.setUsersId(usersId);
 
@@ -56,16 +57,16 @@ public class RatingController {
     }
 
     @PostMapping("/rating-exists")
-    public ResponseEntity<Response<String>> submitUserRatings(@RequestHeader("username") String username) {
+    public ResponseEntity<Response<String>> submitUserRatings(@RequestBody RatingDTO ratingDTO) {
 
-        Long usersId = userService.findPrimaryKeyByUsername(username);
+        Long usersId = userService.findPrimaryKeyByUsername(ratingDTO.getUsername());
 
-        if (ratingService.existsRatingByUsersId(usersId)) {
+        if (ratingService.existsRatingByUsersIdAndQuarter(usersId, ratingDTO.getQuarter())) {
             return ResponseEntity.ok(Response.ok("Rating has been submitted!"));
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Response
-                        .of(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong while checking rating for: %s", username));
+                        .of(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong while checking rating for: %s", ratingDTO.getUsername()));
     }
 }

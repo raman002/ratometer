@@ -4,10 +4,10 @@ create table users
 (
     users_id   bigint auto_increment,
 
-    username   varchar    not null,
-    email      varchar    not null,
-    full_name  varchar    not null,
-    password   varchar    not null,
+    username   varchar not null,
+    email      varchar not null,
+    full_name  varchar not null,
+    password   varchar not null,
     contact_no clob,
 
     uuid       uuid    not null default random_uuid(),
@@ -31,7 +31,7 @@ drop table if exists role_master cascade;
 create table if not exists role_master
 (
     role_master_id bigint  not null auto_increment,
-    role_name      clob ,
+    role_name      clob,
 
     uuid           uuid    not null default random_uuid(),
     version        int              default 0,
@@ -144,6 +144,7 @@ create table rating
 
     category_id bigint  not null,
     users_id    bigint  not null,
+    quarter     int     not null,
 
     is_active   boolean not null default true,
     is_deleted  boolean not null default false,
