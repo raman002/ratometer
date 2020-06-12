@@ -12,7 +12,7 @@ import org.springframework.session.hazelcast.PrincipalNameExtractor;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 
 @Configuration
-@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = 60 * 2) // Session timeout value (5 minutes)
+@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = 60 * 40) // Session timeout value (40 minutes)
 public class HazelcastConfig {
 
     @Bean

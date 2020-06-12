@@ -4,6 +4,7 @@ import io.cfapps.ratometer.entity.support.AbstractBaseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 public abstract class BaseService<Repository extends JpaRepository<Entity, ID>, Entity extends AbstractBaseEntity, ID> {
@@ -28,12 +29,64 @@ public abstract class BaseService<Repository extends JpaRepository<Entity, ID>, 
     }
 
     @Transactional
+    public List<Entity> saveAll(List<Entity> entities) {
+        beforeSaveAll(entities);
+        for (Entity entity : entities) {
+            entity.setUuid(UUID.randomUUID());
+        }
+        List<Entity> saveAll = repository.saveAll(entities);
+
+        afterSaveAll(entities);
+        return saveAll;
+    }
+
+    protected void afterSaveAll(List<Entity> entities) {
+
+    }
+
+    protected void beforeSaveAll(List<Entity> entities) {
+
+    }
+
+    @Transactional
     public Entity update(Entity entity) {
         beforeUpdate(entity);
         repository.save(entity);
         afterUpdate(entity);
 
         return entity;
+    }
+
+    @Transactional
+    public List<Entity> updateAll(List<Entity> entities) {
+        beforeUpdateAll(entities);
+        List<Entity> updateAll = repository.saveAll(entities);
+        afterUpdateAll(entities);
+
+        return updateAll;
+    }
+
+    private void afterUpdateAll(List<Entity> entities) {
+    }
+
+    private void beforeUpdateAll(List<Entity> entities) {
+    }
+
+    @Transactional
+    public void deleteAll(List<Entity> entities) {
+        beforeDeleteAll(entities);
+        for (Entity entity : entities) {
+            entity.setActive(false);
+            entity.setDeleted(true);
+        }
+        repository.saveAll(entities);
+        afterDeleteAll(entities);
+    }
+
+    private void afterDeleteAll(List<Entity> entities) {
+    }
+
+    private void beforeDeleteAll(List<Entity> entities) {
     }
 
     @Transactional

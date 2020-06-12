@@ -6,6 +6,10 @@ import io.cfapps.ratometer.service.support.BaseService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.IntStream;
+
 @Service
 @Transactional(readOnly = true)
 public class RatingService extends BaseService<RatingRepository, Rating, Long> {

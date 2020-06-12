@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -36,19 +37,18 @@ public class RatingController {
 
         Long usersId = userService.findPrimaryKeyByUsername(username);
 
-        if (ratingService.existsRatingByUsersId(usersId)) {
-            return ResponseEntity.ok(Response.ok("Rating has been submitted!"));
-        }
-
         try {
+            List<Rating> ratings = new ArrayList<>();
+
             for (RatingDTO ratingDTO : ratingDTOS) {
                 Rating rating = new Rating();
                 rating.setQuarter(ratingDTO.getQuarter());
                 rating.setCategoryId(categoriesMasterService.findPrimaryKeyByCategoryUid(ratingDTO.getOptionUid()));
                 rating.setUsersId(usersId);
 
-                ratingService.save(rating);
+                ratings.add(rating);
             }
+                ratingService.saveAll(ratings);
         } catch (Exception e) {
             log.error("Something went wrong while submitting user ratings for user : {}", username, e);
         }
