@@ -130,17 +130,17 @@ let dashboardService = {
 
         $('select').each(function (index, select) {
             let $select = $(select);
-            let userId = $select.attr("id");
+            let userUid = $select.attr("id");
 
-            if (!userId) return;
-            let teamId = null;
+            if (!userUid) return;
+            let teamUid = null;
 
             $select.children().each(function (index, option) {
                 if (index == 0) return;
 
                 if (option.selected) {
-                    teamId = option.value;
-                    dataArray.push({userId, teamId});
+                    teamUid = option.value;
+                    dataArray.push({userUid, teamUid});
                 }
             });
 
