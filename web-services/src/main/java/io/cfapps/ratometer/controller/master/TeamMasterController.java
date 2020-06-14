@@ -2,7 +2,6 @@ package io.cfapps.ratometer.controller.master;
 
 import io.cfapps.ratometer.config.MessageSourceConfig;
 import io.cfapps.ratometer.controller.support.ValidationErrorProcessor;
-import io.cfapps.ratometer.entity.Team;
 import io.cfapps.ratometer.entity.master.TeamMaster;
 import io.cfapps.ratometer.model.dto.TeamMasterDTO;
 import io.cfapps.ratometer.service.TeamService;
@@ -38,7 +37,7 @@ public class TeamMasterController implements ValidationErrorProcessor {
 
         for (TeamMaster teamMaster : teamList) {
             TeamMasterDTO teamMasterDTO = new TeamMasterDTO();
-            teamMasterDTO.setSize(teamService.getTeamSize(teamMaster.getPk()));
+            teamMasterDTO.setSize(teamService.getTeamSize(teamMaster.getTeamsMasterId()));
             teamMasterService.copyProperties(teamMaster, teamMasterDTO);
             teamMasterDTOS.add(teamMasterDTO);
         }

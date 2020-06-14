@@ -18,14 +18,14 @@ public class RoleMaster extends AbstractBaseEntity {
     @JsonIgnore
     @Column(name = "role_master_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pk;
+    private Long roleMasterId;
 
     @NotNull
     @Column(name = "role_name", unique = true)
     private String roleName;
 
-    public Long getPk() {
-        return pk;
+    public Long getRoleMasterId() {
+        return roleMasterId;
     }
 
     public String getRoleName() {

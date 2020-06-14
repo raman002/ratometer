@@ -115,19 +115,29 @@
 </div>
 
 <div class="tab-content col-12" id="nav-tabContent-members" th:if="${adminRatingTabActive}">
+    <select id="teamSelect" class="float-right form-control-sm mb-2 mr-2 width-9" onchange="ratingReportService.showReport()">
+        <option class="text-muted" value="0">Select Team...</option>
+        <option th:each="team: ${teams}" th:value="${team.uuid}" th:text="${team.teamName}">
+        </option>
+    </select>
+
     <table class="table table-striped dt-responsive shadow-sm" id="admin-ratings">
         <thead class="bg-info text-light">
         <tr>
             <th>#</th>
             <th>Team Name</th>
             <th>Rating</th>
+            <th>Result</th>
+            <th>Quarter</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="rating, iter : ${adminRatings}">
+        <tr th:each="rating, iter : ${ratingReports}">
             <td th:text="${iter.index + 1}"></td>
             <td th:text="${rating.teamName}"></td>
-            <td th:text="${rating.rating}"></td>
+            <td th:text="${rating.averageRating}"></td>
+            <td th:text="${rating.ratingResult}"></td>
+            <td th:text="${rating.quarter}"></td>
         </tr>
         </tbody>
     </table>

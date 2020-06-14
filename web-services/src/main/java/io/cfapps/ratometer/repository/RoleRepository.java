@@ -11,12 +11,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     List<Role> findAllByIsDeleted(Boolean isDeleted);
 
-    @Query("select rm.roleName from Role r join RoleMaster rm on r.roleMasterId = rm.pk" +
+    @Query("select rm.roleName from Role r join RoleMaster rm on r.roleMasterId = rm.roleMasterId" +
             " where r.userId = :userId and r.isActive = true and r.isDeleted = false")
     List<String> findRoleNamesByUserId(@Param("userId") Long userId);
 
-    @Query("select rm.roleName from Role r join RoleMaster rm on r.roleMasterId = rm.pk" +
-            " join User u on u.pk = r.userId" +
+    @Query("select rm.roleName from Role r join RoleMaster rm on r.roleMasterId = rm.roleMasterId" +
+            " join User u on u.usersId = r.userId" +
             " where u.username = :username and r.isActive = true and r.isDeleted = false")
     List<String> getRoleNamesByUsername(@Param("username") String username);
 }

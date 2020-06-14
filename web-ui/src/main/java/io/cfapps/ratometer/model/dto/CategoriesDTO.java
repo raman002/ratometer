@@ -5,7 +5,7 @@ import java.util.*;
 
 public class CategoriesDTO implements Serializable {
 
-    private Long pk;
+    private Long categoriesMasterId;
     private  String name;
     private Long parentCategoryId;
     private String categoriesType;
@@ -14,12 +14,12 @@ public class CategoriesDTO implements Serializable {
 
     private List<SubCategoriesDTO> subCategories = new ArrayList<>();
 
-    public Long getPk() {
-        return pk;
+    public Long getCategoriesMasterId() {
+        return categoriesMasterId;
     }
 
-    public void setPk(Long pk) {
-        this.pk = pk;
+    public void setCategoriesMasterId(Long categoriesMasterId) {
+        this.categoriesMasterId = categoriesMasterId;
     }
 
     public String getName() {

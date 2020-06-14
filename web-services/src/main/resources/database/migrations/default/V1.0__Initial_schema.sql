@@ -97,18 +97,19 @@ drop table if exists teams;
 
 create table teams
 (
-    teams_id        bigint not null auto_increment,
-    users_id        bigint,
-    teams_master_id bigint not null,
+    teams_id         bigint not null auto_increment,
+    users_id         bigint,
+    teams_master_id  bigint not null,
 
-    uuid            uuid   not null default random_uuid(),
-    version         int    not null default 0,
+    teams_master_uid uuid   not null ,
+    uuid             uuid   not null default random_uuid(),
+    version          int    not null default 0,
 
-    created_by      bigint not null default 1,
-    updated_by      bigint not null default 1,
+    created_by       bigint not null default 1,
+    updated_by       bigint not null default 1,
 
-    created_on      timestamp       default current_timestamp,
-    updated_on      timestamp       default current_timestamp,
+    created_on       timestamp       default current_timestamp,
+    updated_on       timestamp       default current_timestamp,
 
     primary key (teams_id)
 );

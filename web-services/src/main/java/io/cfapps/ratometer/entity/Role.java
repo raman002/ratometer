@@ -17,7 +17,7 @@ public class Role extends BaseEntity {
     @JsonIgnore
     @Column(name = "roles_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pk;
+    private Long rolesId;
 
     @JsonIgnore
     @Column(name = "users_id")
@@ -27,8 +27,8 @@ public class Role extends BaseEntity {
     @Column(name = "role_master_id")
     private Long roleMasterId;
 
-    public Long getPk() {
-        return pk;
+    public Long getRolesId() {
+        return rolesId;
     }
 
     public Long getUserId() {

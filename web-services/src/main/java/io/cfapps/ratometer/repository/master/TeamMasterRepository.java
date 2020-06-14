@@ -14,6 +14,6 @@ public interface TeamMasterRepository extends JpaRepository<TeamMaster, Long> {
     @Query("select tm from TeamMaster tm where tm.uuid = :uid and tm.isActive = true and tm.isDeleted = false")
     TeamMaster findByUid(UUID uid);
 
-    @Query("select (count(tm.pk) > 0) from TeamMaster tm where tm.teamName = :teamName and tm.isActive = true and tm.isDeleted = false")
+    @Query("select (count(tm.teamsMasterId) > 0) from TeamMaster tm where tm.teamName = :teamName and tm.isActive = true and tm.isDeleted = false")
     Boolean isTeamExist(String teamName);
 }

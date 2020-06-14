@@ -7,6 +7,6 @@ import java.util.Comparator;
 public class OptionNameComparator implements Comparator<OptionsDTO> {
     @Override
     public int compare(OptionsDTO o1, OptionsDTO o2) {
-        return o1.getName().compareTo(o2.getName());
+        return o1.getOptionOrderId().compareTo(o2.getOptionOrderId());
     }
 }

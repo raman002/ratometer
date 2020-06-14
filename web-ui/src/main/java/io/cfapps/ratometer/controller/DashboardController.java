@@ -66,7 +66,7 @@ public class DashboardController {
     private void setRoles(UserDetailsDTO userDetailsDTO) {
         try {
             Response<List<String>> teamsResponse = dashboardService.loadUserRoles(userDetailsDTO);
-            HttpStatus statusCode = HttpStatus.resolve(teamsResponse.getCode());
+            HttpStatus statusCode = teamsResponse.getHttpStatus();
 
             switch (statusCode) {
                 case OK: {
@@ -101,7 +101,7 @@ public class DashboardController {
             }
 
             Response<List<TeamDTO>> teamsResponse = dashboardService.fetchTeams(userDetailsDTO);
-            HttpStatus statusCode = HttpStatus.resolve(teamsResponse.getCode());
+            HttpStatus statusCode = teamsResponse.getHttpStatus();
 
             switch (statusCode) {
                 case OK: {
@@ -143,7 +143,7 @@ public class DashboardController {
             } else if (requestParams.containsKey("teams")) {
                 setTeamsProperties(modelAndView, userDetailsDTO, httpSession);
             } else if (requestParams.containsKey("admin-rating")) {
-                setAdminRatingProperties(modelAndView, userDetailsDTO);
+                setAdminRatingProperties(httpSession, modelAndView, userDetailsDTO, (String) requestParams.get("admin-rating"));
             } else if (requestParams.containsKey("assign-teams")) {
                 assignTeams(modelAndView, userDetailsDTO, httpSession);
             }
@@ -184,10 +184,18 @@ public class DashboardController {
                 quarterList.add(quarter);
 
                 switch (quarter) {
-                    case 1: modelAndView.addObject("firstQuarter", false); break;
-                    case 2: modelAndView.addObject("secondQuarter", false); break;
-                    case 3: modelAndView.addObject("thirdQuarter", false); break;
-                    case 4: modelAndView.addObject("fourthQuarter", false); break;
+                    case 1:
+                        modelAndView.addObject("firstQuarter", false);
+                        break;
+                    case 2:
+                        modelAndView.addObject("secondQuarter", false);
+                        break;
+                    case 3:
+                        modelAndView.addObject("thirdQuarter", false);
+                        break;
+                    case 4:
+                        modelAndView.addObject("fourthQuarter", false);
+                        break;
                 }
             }
         }
@@ -212,7 +220,7 @@ public class DashboardController {
         try {
             Response<List<MemberDTO>> response = dashboardService.fetchMembers(userDetailsDTO, true);
 
-            HttpStatus statusCode = HttpStatus.resolve(response.getCode());
+            HttpStatus statusCode = response.getHttpStatus();
 
             switch (statusCode) {
                 case OK: {
@@ -261,13 +269,13 @@ public class DashboardController {
 
             List<CategoriesDTO> subCategories = categoriesDTOS.stream()
                     .filter(e -> "SUB_CATEGORY".equals(e.getCategoriesType()) && e.getParentCategoryId() == category
-                            .getPk())
+                            .getCategoriesMasterId())
                     .collect(Collectors.toList());
 
             // Map the subcategories with categories.
             for (CategoriesDTO cat : subCategories) {
                 SubCategoriesDTO subCategoriesDTO = new SubCategoriesDTO();
-                subCategoriesDTO.setPk(cat.getPk());
+                subCategoriesDTO.setPk(cat.getCategoriesMasterId());
                 subCategoriesDTO.setUuid(cat.getUuid());
                 subCategoriesDTO.setName(cat.getName());
                 category.getSubCategories().add(subCategoriesDTO);
@@ -318,7 +326,7 @@ public class DashboardController {
         if (existingCategories == null) {
             try {
                 Response<List<CategoriesDTO>> httpResponse = dashboardService.fetchCategories(userDetailsDTO);
-                HttpStatus statusCode = HttpStatus.resolve(httpResponse.getCode());
+                HttpStatus statusCode = httpResponse.getHttpStatus();
 
                 switch (statusCode) {
                     case OK: {
@@ -348,9 +356,17 @@ public class DashboardController {
         return existingCategories;
     }
 
-    private void setAdminRatingProperties(ModelAndView modelAndView, UserDetailsDTO userDetailsDTO) {
+    private void setAdminRatingProperties(HttpSession httpSession, ModelAndView modelAndView, UserDetailsDTO userDetailsDTO, String teamUidValue) {
         modelAndView.addObject("adminRatingClass", "active");
         modelAndView.addObject("adminRatingTabActive", true);
+
+        try {
+            UUID teamUid = UUID.fromString(teamUidValue);
+            modelAndView.addObject("ratingReports", getRatingReport(userDetailsDTO, teamUid));
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+        }
+        modelAndView.addObject("teams", prepareTeamsTabData(userDetailsDTO, httpSession, true));
     }
 
     private void setTeamsProperties(ModelAndView modelAndView, UserDetailsDTO userDetailsDTO, HttpSession session) {
@@ -368,22 +384,19 @@ public class DashboardController {
     public List<MemberDTO> loadMembers(UserDetailsDTO userDetailsDTO) {
         try {
             Response<List<MemberDTO>> response = dashboardService.fetchMembers(userDetailsDTO, false);
-            HttpStatus statusCode = HttpStatus.resolve(response.getCode());
+            HttpStatus statusCode = response.getHttpStatus();
 
             switch (statusCode) {
-                case OK: {
+                case OK:
                     return response.getResult();
-                }
 
-                case BAD_REQUEST: {
+                case BAD_REQUEST:
                     log.warn("Members are not found for user: {}", userDetailsDTO.getUsername());
                     break;
-                }
 
-                case INTERNAL_SERVER_ERROR: {
+                case INTERNAL_SERVER_ERROR:
                     log.warn("Something went wrong while fetching members for user: {}", userDetailsDTO.getUsername());
                     break;
-                }
 
                 default:
                     log.error("Unknown response code!");
@@ -458,5 +471,27 @@ public class DashboardController {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Response.of(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong while creating team!"));
+    }
+
+    public List<RatingReportDTO> getRatingReport(UserDetailsDTO userDetailsDTO, UUID teamUid) {
+        try {
+
+            Response<List<RatingReportDTO>> response = dashboardService.getRatingReport(userDetailsDTO, teamUid);
+            HttpStatus status = response.getHttpStatus();
+
+            switch (status) {
+                case OK:
+                    return response.getResult();
+                case INTERNAL_SERVER_ERROR:
+                    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(Response
+                                    .of(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong while fetching rating report for : " + teamUid));
+            }
+
+        } catch (Exception e) {
+            log.error("Could not fetch the rating report!", e);
+        }
+
+        return Collections.EMPTY_LIST;
     }
 }

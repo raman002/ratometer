@@ -65,7 +65,7 @@ public class UserService extends BaseService<UserRepository, User, Long> {
     }
 
     private void setRolesAndAccounts(User user) {
-        Long pk = user.getPk();
+        Long pk = user.getUsersId();
         Role role = createRole(pk);
         roleService.save(role);
     }

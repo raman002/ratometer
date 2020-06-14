@@ -5,22 +5,22 @@ import java.util.UUID;
 
 public class AssignTeamDTO implements Serializable {
 
-    private UUID teamId;
-    private UUID userId;
+    private UUID teamUid;
+    private UUID userUid;
 
-    public UUID getTeamId() {
-        return teamId;
+    public UUID getTeamUid() {
+        return teamUid;
     }
 
-    public void setTeamId(UUID teamId) {
-        this.teamId = teamId;
+    public void setTeamUid(UUID teamUid) {
+        this.teamUid = teamUid;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public UUID getUserUid() {
+        return userUid;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    public void setUserUid(UUID userUid) {
+        this.userUid = userUid;
     }
 }

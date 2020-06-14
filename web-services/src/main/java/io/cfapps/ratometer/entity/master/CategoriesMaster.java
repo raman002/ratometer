@@ -1,6 +1,5 @@
 package io.cfapps.ratometer.entity.master;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.cfapps.ratometer.entity.support.AbstractBaseEntity;
 import io.cfapps.ratometer.enums.CategoriesType;
 import org.hibernate.annotations.DynamicInsert;
@@ -18,7 +17,7 @@ public class CategoriesMaster extends AbstractBaseEntity {
     @Id
     @Column(name = "categories_master_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pk;
+    private Long categoriesMasterId;
 
     @NotNull
     @Column(unique = true)
@@ -35,8 +34,8 @@ public class CategoriesMaster extends AbstractBaseEntity {
     @Column(name = "option_order_id")
     private Integer optionOrderId;
 
-    public Long getPk() {
-        return pk;
+    public Long getCategoriesMasterId() {
+        return categoriesMasterId;
     }
 
     public String getName() {

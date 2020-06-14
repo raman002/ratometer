@@ -13,6 +13,6 @@ public interface CategoriesMasterRepository extends JpaRepository<CategoriesMast
 
     List<CategoriesMaster> findAllByIsDeleted(Boolean isDeleted);
 
-    @Query("select cm.pk from CategoriesMaster cm where cm.uuid = :uid")
+    @Query("select cm.categoriesMasterId from CategoriesMaster cm where cm.uuid = :uid")
     Long findPrimaryKeyByCategoryUid(@Param("uid") UUID uid);
 }

@@ -3,14 +3,9 @@ package io.cfapps.ratometer.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cfapps.ratometer.config.ApplicationProperties;
-import io.cfapps.ratometer.model.dto.CategoriesDTO;
-import io.cfapps.ratometer.model.dto.MemberDTO;
-import io.cfapps.ratometer.model.dto.TeamDTO;
-import io.cfapps.ratometer.model.dto.UserDetailsDTO;
+import io.cfapps.ratometer.model.dto.*;
 import io.cfapps.ratometer.util.web.Response;
-import org.apache.catalina.User;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -18,22 +13,32 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DashboardService {
 
     private final ApplicationProperties applicationProperties;
     private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
 
-    public DashboardService(ApplicationProperties applicationProperties, ObjectMapper objectMapper) {
+    public DashboardService(ApplicationProperties applicationProperties, ObjectMapper objectMapper,
+                            RestTemplate restTemplate) {
         this.applicationProperties = applicationProperties;
         this.objectMapper = objectMapper;
+        this.restTemplate = restTemplate;
     }
 
     public Response<List<String>> loadUserRoles(UserDetailsDTO userDetailsDTO) throws IOException {
@@ -187,5 +192,20 @@ public class DashboardService {
             });
         }
         return response;
+    }
+
+    public Response<List<RatingReportDTO>> getRatingReport(UserDetailsDTO userDetailsDTO, UUID teamUid) {
+
+        String requestURL = UriComponentsBuilder
+                .fromHttpUrl(applicationProperties.getApiBaseURL() + "/report/{teamUid}/get-rating-report-by-team")
+                .buildAndExpand(teamUid)
+                .toString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", userDetailsDTO.getAuthToken());
+
+        ParameterizedTypeReference<Response<List<RatingReportDTO>>> responseType = new ParameterizedTypeReference<Response<List<RatingReportDTO>>>() {};
+
+        return restTemplate.exchange(requestURL, HttpMethod.GET, new HttpEntity<>(headers), responseType).getBody();
     }
 }

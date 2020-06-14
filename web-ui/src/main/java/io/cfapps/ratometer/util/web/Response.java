@@ -15,16 +15,19 @@ public class Response<Type> {
     }
 
     public Response(HttpStatus status, Type result) {
+        httpStatus = status;
         this.code = status.value();
         this.result = result;
     }
 
     public Response(HttpStatus status, String message) {
+        httpStatus = status;
         this.code = status.value();
         this.message = message;
     }
 
     public Response(HttpStatus status, String message, Type result) {
+        httpStatus = status;
         this.code = status.value();
         this.message = message;
         this.result = result;
@@ -69,6 +72,7 @@ public class Response<Type> {
 
     public void setCode(Integer code) {
         this.code = code;
+        httpStatus = HttpStatus.resolve(code);
     }
 
     public String getMessage() {

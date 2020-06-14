@@ -6,6 +6,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @DynamicInsert
@@ -17,7 +18,7 @@ public class Team extends BaseEntity {
     @JsonIgnore
     @Column(name = "teams_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pk;
+    private Long teamsId;
 
     @JsonIgnore
     @Column(name = "users_id")
@@ -27,8 +28,11 @@ public class Team extends BaseEntity {
     @Column(name = "teams_master_id")
     private Long teamsMasterId;
 
-    public Long getPk() {
-        return pk;
+    @Column(name = "teams_master_uid")
+    private UUID teamMasterUid;
+
+    public Long getTeamsId() {
+        return teamsId;
     }
 
     public Long getUserId() {
@@ -45,5 +49,13 @@ public class Team extends BaseEntity {
 
     public void setTeamsMasterId(Long roleMasterId) {
         this.teamsMasterId = roleMasterId;
+    }
+
+    public UUID getTeamMasterUid() {
+        return teamMasterUid;
+    }
+
+    public void setTeamMasterUid(UUID teamMasterUid) {
+        this.teamMasterUid = teamMasterUid;
     }
 }

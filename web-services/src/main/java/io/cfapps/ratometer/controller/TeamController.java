@@ -11,8 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -33,13 +37,17 @@ public class TeamController implements ValidationErrorProcessor {
     @PostMapping("/assign-teams")
     public ResponseEntity<Response<String>> assignTeams(@RequestBody List<AssignTeamDTO> assignTeamDTOS) {
         try {
+            List<Team> teams = new ArrayList<>();
+
             for (AssignTeamDTO teamDTO : assignTeamDTOS) {
                 Team team = new Team();
-                team.setTeamsMasterId(teamMasterService.findByUid(teamDTO.getTeamId()).getPk());
-                team.setUserId(userService.findByUuid(teamDTO.getUserId()).getPk());
+                team.setTeamMasterUid(teamDTO.getTeamUid());
+                team.setTeamsMasterId(teamMasterService.findByUid(teamDTO.getTeamUid()).getTeamsMasterId());
+                team.setUserId(userService.findByUuid(teamDTO.getUserUid()).getUsersId());
 
-                teamService.save(team);
+                teams.add(team);
             }
+            teamService.saveAll(teams);
             return ResponseEntity.ok(Response.ok("Team(s) are assigned successfully!"));
         } catch (Exception e) {
 

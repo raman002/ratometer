@@ -18,14 +18,14 @@ public class TeamMaster extends AbstractBaseEntity {
     @JsonIgnore
     @Column(name = "teams_master_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pk;
+    private Long teamsMasterId;
 
     @NotNull
     @Column(name = "name", unique = true)
     private String teamName;
 
-    public Long getPk() {
-        return pk;
+    public Long getTeamsMasterId() {
+        return teamsMasterId;
     }
 
     public String getTeamName() {

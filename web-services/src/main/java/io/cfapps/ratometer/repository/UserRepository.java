@@ -20,6 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findUserByUsernameAndIsDeletedFalse(String username);
 
-    @Query("select u.pk from User u where u.username = :username")
+    @Query("select u.usersId from User u where u.username = :username")
     Long findPrimaryKeyByUsername(@Param("username") String username);
 }

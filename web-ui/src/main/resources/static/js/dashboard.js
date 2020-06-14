@@ -1,19 +1,32 @@
 "use strict";
 
 $(document).ready(function () {
-    let URL = window.location.href;
+    let URI = window.location.search;
+
+    let queryParams = new URLSearchParams(URI);
+
     let options = {
         responsive: true,
         fixedHeader: true
     };
 
-    if (URL.endsWith('assign-teams'))
+    if (queryParams.has('assign-teams'))
         dashboardTables.loadUnassignedMembersTable(options);
-    else if (URL.endsWith('members'))
+    else if (queryParams.has('members'))
         dashboardTables.loadMembersTable(options);
-    else if (URL.endsWith('teams'))
+    else if (queryParams.has('teams'))
         dashboardTables.loadTeamTable(options);
+    else if (queryParams.has("admin-rating")) {
+        dashboardTables.loadAdminRatingTable(options);
+        let teamUid = queryParams.get('admin-rating');
+        let $teamSelect = $('#teamSelect');
 
+        if(teamUid === '') {
+            $teamSelect.val('0');
+        } else {
+            $teamSelect.val(teamUid);
+        }
+    }
 });
 
 function getBlockUIProperties() {
@@ -182,6 +195,10 @@ let dashboardTables = {
         // Adding save button;
         $('#teamAssignment_filter')
             .append($('<button type="button" onclick="dashboardService.assignTeams()" class="btn btn-success ml-3 btn-sm"><i class="fa fa-save mr-1"></i>Save</button>'));
+    },
+
+    loadAdminRatingTable: function (options) {
+        $('#admin-ratings').DataTable(options);
     }
 }
 
@@ -219,5 +236,18 @@ let teamService = {
                 }
             }
         })
+    }
+}
+
+let ratingReportService = {
+    showReport: function() {
+        let val = $('#teamSelect').val();
+
+        if (val == '0') {
+            alert('Please select a team!');
+            return;
+        }
+
+        window.location.href = '?admin-rating=' + val;
     }
 }

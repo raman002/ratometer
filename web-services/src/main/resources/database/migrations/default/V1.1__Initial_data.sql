@@ -30,18 +30,18 @@ values (1, 3), -- Assigning SUPER ADMIN role to Steve Adams.
 
 
 -- Creating teams
-insert into teams_master(teams_master_id, name)
-values (1, 'TEAM A'),
-       (2, 'TEAM B'),
-       (3, 'TEAM C');
+insert into teams_master(teams_master_id, name, uuid)
+values (1, 'TEAM A', '8d8c9c02-5bef-4c48-993d-face3fb7d365'),
+       (2, 'TEAM B', '4e8038b1-40f2-4796-81b5-7969d2c676f3'),
+       (3, 'TEAM C', '394be8e9-ab86-40b7-8f78-eeee688ee233');
 
 
 
 -- Assigning Teams to the users
-insert into teams(teams_id, users_id, teams_master_id)
-values (1, 2, 1), -- Assigning mark to TEAM A
-       (2, 3, 2), -- Assigning vikas to TEAM B
-       (3, 4, 3);
+insert into teams(teams_id, users_id, teams_master_id, teams_master_uid)
+values (1, 2, 1, '8d8c9c02-5bef-4c48-993d-face3fb7d365'), -- Assigning mark to TEAM A
+       (2, 3, 2, '4e8038b1-40f2-4796-81b5-7969d2c676f3'), -- Assigning vikas to TEAM B
+       (3, 4, 3, '394be8e9-ab86-40b7-8f78-eeee688ee233');
 -- Assigning rohit to TEAM C
 
 -- Categories

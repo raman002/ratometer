@@ -14,7 +14,7 @@ public class User extends BaseEntity {
     @Id
     @Column(name = "users_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pk;
+    private Long usersId;
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -31,8 +31,8 @@ public class User extends BaseEntity {
     @Column(name = "contact_no")
     private String contactNo;
 
-    public Long getPk() {
-        return pk;
+    public Long getUsersId() {
+        return usersId;
     }
 
     public String getUsername() {

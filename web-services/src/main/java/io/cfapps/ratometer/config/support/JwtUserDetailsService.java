@@ -31,7 +31,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         userBuilder
                 .username(username)
                 .password(user.getPassword())
-                .roles(roleService.getRoleNamesByUserId(user.getPk()).toArray(new String[] {}))
+                .roles(roleService.getRoleNamesByUserId(user.getUsersId()).toArray(new String[] {}))
                 .accountLocked(!user.getActive())
                 .accountExpired(user.getDeleted());
 
