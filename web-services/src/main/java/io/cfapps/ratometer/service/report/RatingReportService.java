@@ -38,9 +38,4 @@ public class RatingReportService {
 
         return ratingReportDTOS;
     }
-
-    public static void main(String[] args) {
-        System.out.println("Timestamp.from(Instant.now()) = " + Timestamp.from(Instant.now()));
-        System.out.println("LocalDateTime.now() = " + LocalDateTime.now());
-    }
 }
