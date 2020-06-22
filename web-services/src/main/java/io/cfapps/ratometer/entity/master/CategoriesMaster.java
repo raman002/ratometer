@@ -16,7 +16,7 @@ public class CategoriesMaster extends AbstractBaseEntity {
 
     @Id
     @Column(name = "categories_master_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long categoriesMasterId;
 
     @NotNull

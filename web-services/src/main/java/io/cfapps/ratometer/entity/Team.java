@@ -17,7 +17,7 @@ public class Team extends BaseEntity {
     @Id
     @JsonIgnore
     @Column(name = "teams_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long teamsId;
 
     @JsonIgnore

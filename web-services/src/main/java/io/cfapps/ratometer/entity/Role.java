@@ -16,7 +16,7 @@ public class Role extends BaseEntity {
     @Id
     @JsonIgnore
     @Column(name = "roles_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long rolesId;
 
     @JsonIgnore

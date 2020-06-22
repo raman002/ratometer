@@ -17,7 +17,7 @@ public class RoleMaster extends AbstractBaseEntity {
     @Id
     @JsonIgnore
     @Column(name = "role_master_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long roleMasterId;
 
     @NotNull

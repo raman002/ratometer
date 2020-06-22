@@ -1,5 +1,7 @@
 drop table if exists users cascade;
 
+create sequence hibernate_sequence;
+
 create table users
 (
     users_id   bigint auto_increment,

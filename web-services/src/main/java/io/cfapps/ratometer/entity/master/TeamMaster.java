@@ -17,7 +17,7 @@ public class TeamMaster extends AbstractBaseEntity {
     @Id
     @JsonIgnore
     @Column(name = "teams_master_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long teamsMasterId;
 
     @NotNull

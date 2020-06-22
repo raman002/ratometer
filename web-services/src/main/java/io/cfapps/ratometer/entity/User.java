@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class User extends BaseEntity {
     @Id
     @Column(name = "users_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long usersId;
 
     @Column(unique = true, nullable = false)
