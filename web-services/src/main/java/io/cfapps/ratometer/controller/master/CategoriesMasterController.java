@@ -24,7 +24,7 @@ public class CategoriesMasterController implements ValidationErrorProcessor {
     }
 
     @GetMapping("/get-all")
-    public ResponseEntity<Response<List<CategoriesMaster>>> getAllRoles() {
+    public ResponseEntity<Response<List<CategoriesMaster>>> getAllCategories() {
         return ResponseEntity.ok(Response.ok(service.findAllByIsDeleted()));
     }
 }

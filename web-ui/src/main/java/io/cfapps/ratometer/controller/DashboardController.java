@@ -13,9 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -43,15 +45,15 @@ public class DashboardController {
         ModelAndView modelAndView = new ModelAndView("dashboard");
         UserDetailsDTO userDetailsDTO = (UserDetailsDTO) httpSession.getAttribute("userDetails");
 
-        if (userDetailsDTO == null) {
+       /* if (userDetailsDTO == null) {
             return new RedirectView("/login");
-        }
+        }*/
 
         if (redirectView.isRedirectView()) {
-            if (CollectionUtils.isEmpty(userDetailsDTO.getRoles())) {
+           /* if (CollectionUtils.isEmpty(userDetailsDTO.getRoles())) {
                 setRoles(userDetailsDTO);
                 httpSession.setAttribute("userDetails", userDetailsDTO);
-            }
+            }*/
 
             try {
                 handleRedirect(modelAndView, requestParams, userDetailsDTO, httpSession);
@@ -133,34 +135,24 @@ public class DashboardController {
         modelAndView.addObject("title", "Dashboard");
         modelAndView.addObject("showLogout", true);
         modelAndView.addAllObjects(requestParams);
-        List<String> roles = userDetailsDTO.getRoles();
 
-        if (roles.contains("SUPER_ADMIN")) {
-            modelAndView.addObject("isSuperAdmin", true);
+        if (requestParams.containsKey("members")) {
+            setMembersProperties(modelAndView, userDetailsDTO);
+        } else if (requestParams.containsKey("teams")) {
+            setTeamsProperties(modelAndView, userDetailsDTO, httpSession);
+        } else if (requestParams.containsKey("admin-rating")) {
+            setAdminRatingProperties(httpSession, modelAndView, userDetailsDTO, (String) requestParams.get("admin-rating"));
+        } else if (requestParams.containsKey("assign-teams")) {
+            assignTeams(modelAndView, userDetailsDTO, httpSession);
+        } else if (requestParams.containsKey("intro")) {
+            prepareIntroductionView(modelAndView);
+        } else if (requestParams.containsKey("user-rating")) {
+            modelAndView.addObject("userRatingTabActive", true);
+            modelAndView.addObject("userRatingClass", "active");
+            modelAndView.addObject("isRatingAlreadySubmitted", false);
+            modelAndView.addObject("teams", prepareTeamsTabData(userDetailsDTO, httpSession, true));
 
-            if (requestParams.containsKey("members")) {
-                setMembersProperties(modelAndView, userDetailsDTO);
-            } else if (requestParams.containsKey("teams")) {
-                setTeamsProperties(modelAndView, userDetailsDTO, httpSession);
-            } else if (requestParams.containsKey("admin-rating")) {
-                setAdminRatingProperties(httpSession, modelAndView, userDetailsDTO, (String) requestParams.get("admin-rating"));
-            } else if (requestParams.containsKey("assign-teams")) {
-                assignTeams(modelAndView, userDetailsDTO, httpSession);
-            }
-        } else if (roles.contains("USER")) {
-            modelAndView.addObject("isUser", true);
-            if (requestParams.containsKey("intro")) {
-                prepareIntroductionView(modelAndView);
-            } else if (requestParams.containsKey("user-rating")) {
-                modelAndView.addObject("userRatingTabActive", true);
-                modelAndView.addObject("userRatingClass", "active");
-                modelAndView.addObject("isRatingAlreadySubmitted", false);
-
-                if (hasSubmittedAllRatings(userDetailsDTO, modelAndView)) {
-                    return;
-                }
-                setUserCategories(modelAndView, httpSession);
-            }
+            setUserCategories(modelAndView, httpSession);
         }
     }
 
@@ -280,7 +272,6 @@ public class DashboardController {
                 subCategoriesDTO.setName(cat.getName());
                 category.getSubCategories().add(subCategoriesDTO);
             }
-            ;
 
             // Remove the extracted sub categories.
             categoriesDTOS.removeAll(subCategories);
@@ -304,17 +295,11 @@ public class DashboardController {
                     option.setOptionOrderId(cat.getOptionOrderId());
                     subCategory.getOptions().add(option);
                 }
-                ;
 
-                Collections.sort(subCategory.getOptions(), new OptionNameComparator());
                 // Remove the extracted sub categories.
                 categoriesDTOS.removeAll(options);
             }
-
-            Collections.sort(subCategories, new SubCategoryNameComparator());
         }
-
-        Collections.sort(categories, new CategoryNameComparator());
 
         return categories;
     }

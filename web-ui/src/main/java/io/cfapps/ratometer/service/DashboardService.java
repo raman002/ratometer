@@ -48,9 +48,6 @@ public class DashboardService {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(applicationProperties.getApiBaseURL() + "/user-roles/get-by-user");
 
-            httpGet.setHeader("Authorization", userDetailsDTO.getAuthToken());
-            httpGet.setHeader("username", userDetailsDTO.getUsername());
-
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
 
@@ -64,8 +61,6 @@ public class DashboardService {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(applicationProperties.getApiBaseURL() + "/teams/get-all");
-
-            httpGet.setHeader("Authorization", userDetailsDTO.getAuthToken());
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -90,9 +85,6 @@ public class DashboardService {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(URL.toString());
 
-            httpGet.setHeader("Authorization", userDetailsDTO.getAuthToken());
-            httpGet.setHeader("username", userDetailsDTO.getUsername());
-
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
             response = objectMapper
@@ -107,9 +99,6 @@ public class DashboardService {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(applicationProperties.getApiBaseURL() + "/categories/get-all");
-
-            httpGet.setHeader("Authorization", userDetailsDTO.getAuthToken());
-            httpGet.setHeader("username", userDetailsDTO.getUsername());
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -127,7 +116,6 @@ public class DashboardService {
             httpPost.setEntity(new StringEntity(requestBody));
 
             httpPost.setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-            httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -145,8 +133,6 @@ public class DashboardService {
             httpPost.setEntity(new StringEntity(requestBody));
 
             httpPost.setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-            httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
-            httpPost.setHeader("username", userDetailsDTO.getUsername());
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -163,8 +149,6 @@ public class DashboardService {
             HttpPost httpPost = new HttpPost(applicationProperties.getApiBaseURL() + "/rating/rating-exists");
             httpPost.setEntity(new StringEntity(String.format("{\"username\": \"%s\", \"quarter\": \"%s\"}",
                     userDetailsDTO.getUsername(), quarter), ContentType.APPLICATION_JSON));
-
-            httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -184,7 +168,6 @@ public class DashboardService {
             httpPost.setEntity(new StringEntity(requestBody));
 
             httpPost.setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-            httpPost.setHeader("Authorization", userDetailsDTO.getAuthToken());
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
             String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -202,7 +185,6 @@ public class DashboardService {
                 .toString();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", userDetailsDTO.getAuthToken());
 
         ParameterizedTypeReference<Response<List<RatingReportDTO>>> responseType = new ParameterizedTypeReference<Response<List<RatingReportDTO>>>() {};
 

@@ -12,36 +12,47 @@
 
 <nav>
     <div class="nav nav-tabs m-3" id="nav-tab" role="tablist">
-        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${teamsTabClass}" id="teamsTab"
-           th:href="@{?teams}" role="tab" aria-controls="nav-home">Teams</a>
-
-        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${membersTabClass}" id="nav-profile-tab"
-           th:href="@{?members}" role="tab" aria-controls="nav-profile">Members</a>
-
-        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${teamAssignmentTabClass}"
-           id="nav-profile-tab"
-           th:href="@{?assign-teams}" role="tab" aria-controls="nav-profile">Team Assignment</a>
-
-        <a th:if="${isSuperAdmin}" class="nav-item nav-link" th:classappend="${adminRatingClass}" id="nav-profile-tab"
-           th:href="@{?admin-rating}" role="tab" aria-controls="nav-profile">Ratings</a>
-
-        <a th:if="${isUser}" class="nav-item nav-link" id="nav-profile-tab"
+        <a class="nav-item nav-link" id="nav-profile-tab"
            th:href="@{?intro}" th:classappend="${introTabClass}" role="tab" aria-controls="nav-profile">Introduction</a>
 
-        <a th:if="${isUser}" class="nav-item nav-link" id="nav-profile-tab"
+        <a class="nav-item nav-link" id="nav-profile-tab"
            th:href="@{?user-rating}" th:classappend="${userRatingClass}" role="tab"
            aria-controls="nav-profile">Rating</a>
 
-        <div id="menubar" class="form-inline mb-1 ml-auto" th:if="${userRatingTabActive} and ${!isRatingAlreadySubmitted}">
+        <a class="nav-item nav-link" th:classappend="${teamsTabClass}" id="teamsTab"
+           th:href="@{?teams}" role="tab" aria-controls="nav-home">Teams</a>
+
+        <a class="nav-item nav-link" th:classappend="${membersTabClass}" id="nav-profile-tab"
+           th:href="@{?members}" role="tab" aria-controls="nav-profile">Members</a>
+
+        <a class="nav-item nav-link" th:classappend="${adminRatingClass}" id="nav-profile-tab"
+           th:href="@{?admin-rating}" role="tab" aria-controls="nav-profile">Rating Report</a>
+
+        <div id="menubar" class="form-inline mb-1 ml-auto" th:if="${userRatingTabActive} or ${adminRatingTabActive} or ${teamsTabActive}">
+            <select class="form-control-sm mr-2 width-9" th:if="${userRatingTabActive}">
+                <option selected>Select team...</option>
+                <option th:each="team : ${teams}" th:value="${team.uuid}" th:text="${team.teamName}"></option>
+            </select>
+
+            <select id="year" class="form-control-sm mr-2 width-9">
+                <option class="text-muted" value="0">Year...</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+            </select>
+
             <select id="quarter" class="form-control-sm mr-2 width-9">
                 <option class="text-muted" value="0">Select Quarter...</option>
-                <option value="1" th:if="${firstQuarter}">First</option>
-                <option value="2" th:if="${secondQuarter}">Second</option>
-                <option value="3" th:if="${thirdQuarter}">Third</option>
-                <option value="4" th:if="${fourthQuarter}">Fourth</option>
+                <option value="1">First</option>
+                <option value="2">Second</option>
+                <option value="3">Third</option>
+                <option value="4">Fourth</option>
             </select>
-            <button type="button" onclick="userService.submitRating()" class="btn btn-success btn-sm form-control-sm"><i
-                    class="fa fa-lock mr-2"></i>Submit Rating
+            <button type="button" onclick="userService.submitRating()" class="btn btn-success btn-sm form-control-sm" th:if="${userRatingTabActive}">
+                <i class="fa fa-lock mr-2"></i>Submit Rating
             </button>
         </div>
     </div>
@@ -53,7 +64,7 @@
         <tr>
             <th>#</th>
             <th>Name</th>
-            <th>Size</th>
+            <th>Maturity Level</th>
         </tr>
         </thead>
         <tbody>
@@ -161,7 +172,7 @@
         </div>
     </div>
 
-    <div th:if="${!isRatingAlreadySubmitted}" class="card bg-light shadow-sm mb-4" th:each="category: ${categories}">
+    <div class="card bg-light shadow-sm mb-4" th:each="category: ${categories}">
         <div class="bg-info card-header text-white" th:text="${category.name}"></div>
         <div class="card-body">
             <div class="card bg-light mb-2" th:each="subCategory: ${category.subCategories}">
